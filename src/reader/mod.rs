@@ -120,6 +120,7 @@ impl<'v, 'e> TableBuilder<'v, 'e> {
 
     pub fn finish(mut self) {
         self.finish_header();
+        self.view.finish_profiles();
         for (column, forms) in std::mem::take(&mut self.column_formulas) {
             if let [single] = forms.into_iter().collect::<Vec<_>>().as_slice() {
                 self.view.column_formula(ColumnNumber(column), single);

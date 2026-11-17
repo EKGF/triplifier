@@ -169,3 +169,57 @@ async fn canonical_ntriples_is_sorted_and_deterministic() {
     );
     assert_eq!(la, lb, "same input, same canonical source graphs");
 }
+
+#[tokio::test]
+async fn profile_states_inferred_datatypes_on_columns() {
+    let input = tempfile::tempdir().unwrap();
+    let mut csv = String::from("when,amount,code\n");
+    for d in 1..=20 {
+        csv.push_str(&format!("2026-03-{d:02},{d}.5,00{d}\n"));
+    }
+    csv.push_str("unknown,,X\n");
+    std::fs::write(input.path().join("ledger.csv"), csv).unwrap();
+    let out_dir = tempfile::tempdir().unwrap();
+    let out = out_dir.path().join("p.nq");
+    Triplify::new(
+        vec![input.path().to_owned()],
+        Output::file(out.clone(), false).unwrap(),
+    )
+    .with_profile(true)
+    .run()
+    .await
+    .unwrap();
+    let ds = load(&std::fs::read(&out).unwrap(), RdfFormat::NQuads);
+    // `when`: 20 of 21 are dates (95.2%); `amount`: 20 decimals; `code`:
+    // leading zeros are identifiers, so no datatype.
+    assert_eq!(count(&ds, raw::INFERRED_DATATYPE, xsd::DATE), 1);
+    assert_eq!(
+        count(&ds, raw::INFERRED_DATATYPE, xsd::DECIMAL),
+        1
+    );
+    assert_eq!(
+        ds.iter()
+            .filter(|q| q.predicate == raw::INFERRED_DATATYPE)
+            .count(),
+        2
+    );
+    let values = |p: NamedNodeRef<'_>| -> Vec<String> {
+        let mut v: Vec<String> = ds
+            .iter()
+            .filter(|q| q.predicate == p)
+            .filter_map(|q| {
+                match q.object {
+                    oxrdf::TermRef::Literal(l) => Some(l.value().to_owned()),
+                    _ => None,
+                }
+            })
+            .collect();
+        v.sort();
+        v
+    };
+    assert_eq!(values(raw::CONFORMING_COUNT), ["20", "20"]);
+    assert_eq!(values(raw::COUNT), ["20", "21", "21"]);
+    // Values keep their source literals: still plain strings.
+    assert!(ds.iter().all(|q| q.predicate != raw::LITERAL_VALUE
+        || matches!(q.object, oxrdf::TermRef::Literal(l) if l.datatype() == xsd::STRING)));
+}

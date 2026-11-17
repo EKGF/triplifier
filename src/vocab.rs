@@ -28,6 +28,11 @@ pub mod raw {
         GIT_PATH = "gitPath", GIT_BLOB = "gitBlob",
         GIT_MODIFIED = "gitModified",
         FORMULA = "formula", FORMULA_R1C1 = "formulaR1C1",
+        COUNT = "count", NULL_COUNT = "nullCount", UNIQUE = "unique",
+        TOP = "top", FREQ = "freq", INFERRED_DATATYPE = "inferredDatatype",
+        CONFORMING_COUNT = "conformingCount", MIN = "min", MAX = "max",
+        MEAN = "mean", STD = "std", P25 = "25pct", P50 = "50pct",
+        P75 = "75pct",
     }
 }
 
@@ -76,7 +81,7 @@ pub mod spdx {
 pub mod xsd {
     terms! { "http://www.w3.org/2001/XMLSchema#";
         STRING = "string", INTEGER = "integer", DOUBLE = "double",
-        BOOLEAN = "boolean", DATE_TIME = "dateTime", DURATION = "duration",
+        BOOLEAN = "boolean", DECIMAL = "decimal", DATE = "date", DATE_TIME = "dateTime", DURATION = "duration",
         NON_NEGATIVE_INTEGER = "nonNegativeInteger",
         HEX_BINARY = "hexBinary",
     }

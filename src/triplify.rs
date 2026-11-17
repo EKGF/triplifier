@@ -35,6 +35,7 @@ pub struct Triplify {
     roots:       Vec<PathBuf>,
     output:      Output,
     concurrency: usize,
+    profile:     bool,
 }
 
 enum Outcome {
@@ -47,7 +48,13 @@ impl Triplify {
     pub fn new(roots: Vec<PathBuf>, output: Output) -> Self {
         let concurrency =
             std::thread::available_parallelism().map_or(4, |n| n.get());
-        Self { roots, output, concurrency }
+        Self { roots, output, concurrency, profile: false }
+    }
+
+    /// Compute column profiles (counts, inferred datatype, statistics).
+    pub fn with_profile(mut self, profile: bool) -> Self {
+        self.profile = profile;
+        self
     }
 
     pub async fn run(self) -> anyhow::Result<Summary> {
@@ -124,9 +131,11 @@ impl Triplify {
         let iris = SourceIris::new(source.digest());
         let mut out = GraphEmitter::new(iris.graph(), tx);
         source.describe(&iris, &mut out);
-        let emitter =
-            crate::reader::read(&source, SourceEmitter::new(iris.clone(), out))
-                .await?;
+        let emitter = crate::reader::read(
+            &source,
+            SourceEmitter::new(iris.clone(), out).with_profile(self.profile),
+        )
+        .await?;
         emitter.into_inner().flush().await?;
         Ok(Some((iris.source(), iris.graph())))
     }

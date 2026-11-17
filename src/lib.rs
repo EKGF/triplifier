@@ -4,6 +4,7 @@ pub mod emit;
 pub mod formula;
 pub mod git;
 pub mod iri;
+pub mod profile;
 pub mod reader;
 pub mod source;
 pub mod triplify;
