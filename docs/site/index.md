@@ -32,7 +32,7 @@ triplify ./dumps -o raw.nq.gz
 Triplify walks the files and directories you give it, honouring
 `.gitignore`, and captures every table it can read as RDF. It reads CSV, TSV,
 XLSX, XLSM, XLSB, XLS and ODS files. The output follows the
-[EKGF Raw Data Ontology](https://github.com/EKGF/ekg-ontologies/blob/main/ekgf-raw.ttl):
+[EKGF Raw Data Ontology](https://ekgf.github.io/ekg-ontologies/spec/main/ekg-raw/index.html):
 sources, views, columns, rows and values, exactly as they physically are.
 
 Each source gets its own named graph, along with its metadata: a DCAT
