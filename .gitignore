@@ -2,3 +2,6 @@
 **/*.rs.bk
 rustc-ice-*.txt
 /out/
+/dist/
+/.venv/
+__pycache__/

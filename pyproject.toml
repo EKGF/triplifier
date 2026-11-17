@@ -1,0 +1,28 @@
+[build-system]
+requires = ["maturin==1.15.0"]
+build-backend = "maturin"
+
+[project]
+name = "triplifier"
+dynamic = ["version"]
+description = "Turn any tabular data dump (CSV, XLSX, ...) into raw RDF with the EKGF Raw Data Ontology, without mapping"
+readme = "packaging/PYPI_README.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{name = "Jacobus Geluk", email = "jacobus.geluk@ekgf.org"}]
+keywords = ["rdf", "knowledge-graph", "csv", "xlsx", "etl", "ekg"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Topic :: Database",
+]
+
+[project.urls]
+Repository = "https://github.com/EKGF/triplifier"
+Issues = "https://github.com/EKGF/triplifier/issues"
+
+[tool.maturin]
+bindings = "bin"
+manifest-path = "Cargo.toml"
+strip = true

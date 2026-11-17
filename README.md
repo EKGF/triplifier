@@ -16,6 +16,17 @@ Each source gets its own named graph, along with metadata:
 - Git origin: repository, commit, path, blob, and whether the file differs from `HEAD`.
 - A PROV activity for the run.
 
+## Install
+
+```sh
+uv tool install triplifier     # or: pipx install triplifier / pip install triplifier
+cargo install triplifier       # from source
+```
+
+The PyPI package is a [maturin](https://www.maturin.rs/) `bin` wheel that
+contains the native executable, the same as GraphArch's. Build one locally with
+`uvx maturin build --release --locked --out dist`.
+
 ## Why capture first, map later
 
 Mapping languages such as [R2RML](https://www.w3.org/TR/r2rml/),
