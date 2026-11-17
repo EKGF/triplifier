@@ -39,9 +39,9 @@ cargo build --release --locked
 ### As a Python wheel built locally
 
 Triplify can also be packaged as a [maturin](https://www.maturin.rs/) `bin`
-wheel, the same as GraphArch's. The wheel contains the native executable, so it
-needs no Python dependencies and downloads nothing at runtime. Build one from a
-checkout and install it into an isolated tool environment:
+wheel. The wheel contains the native executable, so it needs no Python
+dependencies and downloads nothing at runtime. Build one from a checkout and
+install it into an isolated tool environment:
 
 ```sh
 uvx maturin build --release --locked --out dist
