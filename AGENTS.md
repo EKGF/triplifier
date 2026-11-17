@@ -24,9 +24,9 @@ A new input format is a new `SourceKind` variant plus a reader that feeds a
   copied from GraphArch.
 - Use strict newtypes (`BaseIri`, `ContentDigest`, `ViewNumber`, `ColumnNumber`,
   `RowNumber`) rather than bare strings or integers.
-- Every emitted vocabulary term is a constant in `src/vocab.rs`. A `raw:` term
-  that is not in `ekgf-raw.ttl` must be added to
-  `docs/ontology/raw-extension.ttl`.
+- Every emitted vocabulary term is a constant in `src/vocab.rs`. A new `raw:`
+  term must first be added, with SHACL shapes and tests, to `ekgf-raw.ttl` in
+  the `EKGF/ekg-ontologies` repository. That repository owns the raw ontology.
 - Conventional commits with one scope from: `cli`, `reader`, `emit`,
   `writer`, `walk`, `source`, `git`, `iri`, `ontology`, `docs`, `ci`, `deps`,
   `release`.

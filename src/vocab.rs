@@ -1,7 +1,7 @@
 //! IRIs of every vocabulary term the triplifier emits.
 //!
-//! The `raw` terms marked *proposed* are not (yet) in
-//! `ekg-ontologies/ekgf-raw.ttl`; see `docs/ontology/raw-extension.ttl`.
+//! All `raw` terms are defined, with SHACL shapes, in
+//! `EKGF/ekg-ontologies/ekgf-raw.ttl`.
 
 macro_rules! terms {
     ($ns:literal; $($name:ident = $local:literal),* $(,)?) => {
@@ -22,7 +22,6 @@ pub mod raw {
         FOR_COLUMN = "forColumn", LITERAL_VALUE = "literalValue",
         SOURCE_TEXT = "sourceText", COLUMN_NUMBER = "columnNumber",
         VIEW_ROW_NUMBER = "viewRowNumber", FILE_NAME = "fileName",
-        // proposed
         CSV_FILE = "CsvFile", TSV_FILE = "TsvFile",
         VIEW_NUMBER = "viewNumber",
         GIT_REPOSITORY = "gitRepository", GIT_COMMIT = "gitCommit",

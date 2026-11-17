@@ -7,7 +7,7 @@ description = "Triplifier turns any tabular data dump (CSV, XLSX, ...) into raw 
 authors = ["Jacobus Geluk <jacobus.geluk@ekgf.org>"]
 license = "MIT"
 repository = "https://github.com/EKGF/triplifier"
-include = ["/src/**", "/docs/ontology/*.ttl", "/Cargo.toml", "/Cargo.lock", "/LICENSE", "/README.md"]
+include = ["/src/**", "/Cargo.toml", "/Cargo.lock", "/LICENSE", "/README.md"]
 
 [dependencies]
 anyhow = "1"

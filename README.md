@@ -66,8 +66,9 @@ Rules:
   [Identifiers](#identifiers). Identical files found twice are triplified once.
 - **Columns are physical.** Header text is only a label, and ragged rows
   just add columns.
-- The output conforms to the SHACL shapes in `ekgf-raw.ttl`. Terms not yet
-  upstream are in [`docs/ontology/raw-extension.ttl`](docs/ontology/raw-extension.ttl).
+- Every term comes from the
+  [EKGF Raw Data Ontology](https://github.com/EKGF/ekg-ontologies/blob/main/ekgf-raw.ttl),
+  and the output conforms to its SHACL `ValidationShapeSet`.
 
 ## Usage
 
