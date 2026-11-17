@@ -1,6 +1,6 @@
 ---
 title: "Usage"
-description: "Command-line reference for triplify: input paths, output formats chosen by file name, gzip compression and RDFC-1.0 canonical output."
+description: "Command-line reference for triplify: input paths, output formats chosen by file name, gzip compression, RDFC-1.0 canonical output and column profiles."
 permalink: /usage/
 nav_order: 3
 grapharch:
@@ -26,6 +26,7 @@ Arguments:
 Options:
   -o, --output <OUTPUT>  Output file: .nq, .nt (graphs merged) or .trig, optionally .gz. Defaults to N-Quads on stdout
       --canonical        Emit RDFC-1.0 canonical N-Quads/N-Triples (buffers the dataset in memory)
+      --profile          Profile every column: exact value/null/distinct counts, most frequent value, an inferred datatype with its conforming count, and min/max/mean/std/percentiles. Costs memory per column and time
   -v, --verbose...       Increase logging verbosity
   -q, --quiet...         Decrease logging verbosity
   -h, --help             Print help
@@ -75,6 +76,19 @@ support TriG.
 
 ```sh
 triplify ./dumps --canonical -o raw.nq
+```
+
+## Column profiles
+
+`--profile` adds data-quality measures to every column: counts, the most
+frequent value, an inferred datatype with its evidence, and numeric statistics.
+They are computed in the same streaming pass, which is far cheaper than
+computing them in SPARQL afterwards. They do cost memory for each column, so
+they are opt-in. See [Output model](../output-model/#column-profiles) for the
+measures and the inference policy.
+
+```sh
+triplify ./dumps --profile -o raw.nq.gz
 ```
 
 ## Logging and exit status
