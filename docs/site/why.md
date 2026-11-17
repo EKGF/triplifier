@@ -85,8 +85,4 @@ functions cover most real workbooks. It is not part of triplify yet.
 
 ## Roadmap
 
-These are plans, not current features:
-
-- PostgreSQL `pg_dump` and `COPY` output, Parquet, Avro and JSON Lines.
-- Direct JDBC and ODBC table dumps (full table scans only, no views).
-- Compile column formulas to SHACL rules and constraints.
+See [Planned features](../planned/).
