@@ -1,6 +1,6 @@
 ---
 title: "Install"
-description: "Install the triplify command from source with Cargo today, or from PyPI and crates.io once the first release is published."
+description: "Install the triplify command with uv, pipx, pip or Cargo, or build it from source."
 permalink: /install/
 nav_order: 2
 grapharch:
@@ -12,13 +12,32 @@ grapharch:
 Triplify is a single native executable, `triplify`, written in Rust. The
 package is named `triplify` on both PyPI and crates.io.
 
-## What works today
+## Install from PyPI
 
-No release has been published yet, so `uv tool install triplify`,
-`pipx install triplify`, `pip install triplify` and `cargo install triplify`
-do not work yet. Until the first release, install from source.
+Install the native executable in an isolated tool environment with uv:
 
-### From source with Cargo
+```sh
+uv tool install triplify
+```
+
+You can also use pipx or pip:
+
+```sh
+pipx install triplify
+pip install triplify
+```
+
+The wheels contain the native executable, need no Python dependencies and
+download nothing at runtime. They cover Linux (glibc 2.28 or later), macOS 11
+or later and Windows, on x86-64 and ARM64.
+
+## Install with Cargo
+
+```sh
+cargo install triplify
+```
+
+## Build from source
 
 The repository pins a nightly Rust toolchain in `rust-toolchain.toml`, which
 `rustup` selects automatically. Install the latest `main` with:
@@ -36,7 +55,7 @@ cargo build --release --locked
 ./target/release/triplify --version
 ```
 
-### As a Python wheel built locally
+### Build a Python wheel
 
 Triplify can also be packaged as a [maturin](https://www.maturin.rs/) `bin`
 wheel. The wheel contains the native executable, so it needs no Python
@@ -47,21 +66,6 @@ install it into an isolated tool environment:
 uvx maturin build --release --locked --out dist
 uv tool install dist/triplify-*.whl
 ```
-
-## Once the first release is published
-
-The release workflow publishes to PyPI and crates.io under the name
-`triplify`. After that, any of these installs the `triplify` command:
-
-```sh
-uv tool install triplify
-pipx install triplify
-pip install triplify
-cargo install triplify
-```
-
-The wheels cover Linux (glibc 2.28 or later), macOS 11 or later and Windows,
-on x86-64 and ARM64.
 
 ## Check the installation
 

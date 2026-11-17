@@ -28,15 +28,15 @@ The website is built by [GraphArch](https://github.com/EKGF/grapharch) from
 
 ## Install
 
-No release is published yet, so install from source:
+Install the native executable with uv:
 
 ```sh
-cargo install --locked --git https://github.com/EKGF/triplify
+uv tool install triplify
 ```
 
-Once the first release is published, `uv tool install triplify`,
-`pipx install triplify`, `pip install triplify` and `cargo install triplify`
-install the `triplify` command.
+Alternatively, use `pipx install triplify`, `pip install triplify` or
+`cargo install triplify`. See [Install](https://ekgf.github.io/triplify/install/)
+for platform support and source builds.
 
 ## License
 
