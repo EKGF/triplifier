@@ -1,6 +1,6 @@
 ---
 title: "Triplify"
-description: "Turn any data dump into raw RDF. Triplify captures CSV, TSV and spreadsheet files as the EKGF Raw Data Ontology, with DCAT, SPDX, Git and PROV provenance, and no mapping."
+description: "Turn CSV files and spreadsheets into RDF, preserving their original structure and values."
 permalink: /
 nav_order: 1
 grapharch:
@@ -19,7 +19,10 @@ EKGF tool
 
 # Triplify
 
-Turn any data dump into raw RDF. No mapping and almost no options.
+Turn CSV files and spreadsheets into RDF, preserving their original structure and values.
+
+Capture your source data without defining a mapping first. Use SPARQL and SHACL
+afterward to transform, connect and validate it.
 
 [Install](install.md) [Usage](usage.md) [Source on GitHub](https://github.com/EKGF/triplify)
 

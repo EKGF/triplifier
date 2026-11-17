@@ -1,6 +1,9 @@
 # Triplify
 
-Turn any data dump into raw RDF. No mapping and almost no options.
+Turn CSV files and spreadsheets into RDF, preserving their original structure and values.
+
+Capture your source data without defining a mapping first. Use SPARQL and SHACL
+afterward to transform, connect and validate it.
 
 ```sh
 triplify ./dumps -o raw.nq.gz
