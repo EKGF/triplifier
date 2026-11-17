@@ -1,10 +1,10 @@
 ---
 title: "Why capture first"
-description: "Why triplifier captures a data dump as it physically is, and leaves mapping, joining and cleansing to SPARQL, SHACL, OWL and SKOS in the graph."
+description: "Why triplify captures a data dump as it physically is, and leaves mapping, joining and cleansing to SPARQL, SHACL, OWL and SKOS in the graph."
 permalink: /why/
 nav_order: 5
 grapharch:
-  subject: urn:triplifier:website:page:why
+  subject: urn:triplify:website:page:why
 ---
 
 # Why capture first, map later
@@ -22,7 +22,7 @@ own expertise up front, before a single triple exists.
 
 ## Capture the dump instead
 
-Triplifier reverses that. It reads the cheapest and most granular artefact a
+Triplify reverses that. It reads the cheapest and most granular artefact a
 system can produce, the data dump (CSV, spreadsheet, database export), offline
 and away from production. It turns it into RDF *as it physically is*: sources,
 views, columns, rows and values.
@@ -48,7 +48,7 @@ these column rules into SHACL:
 
 This needs a translator from the Excel function language into SPARQL.
 Arithmetic, comparisons, `IF`, `SUM` and `AVERAGE` over ranges and string
-functions cover most real workbooks. It is not part of triplifier yet.
+functions cover most real workbooks. It is not part of triplify yet.
 
 ## Roadmap
 

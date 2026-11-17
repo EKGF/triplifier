@@ -35,8 +35,8 @@ jobs:
           "$GRAPHARCH" publication build-site
           --source docs/site
           --definitions docs/grapharch.ttl
-          --project urn:triplifier:website:project
-          --target urn:triplifier:website:website
+          --project urn:triplify:website:project
+          --target urn:triplify:website:website
           --edition "$EDITION"
           --output-root _site
       - name: Package the website for GitHub Pages

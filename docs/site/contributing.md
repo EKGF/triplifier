@@ -1,16 +1,16 @@
 ---
 title: "Contributing"
-description: "How triplifier is built: its architecture, coding conventions, verification commands, commit conventions and release process."
+description: "How triplify is built: its architecture, coding conventions, verification commands, commit conventions and release process."
 permalink: /contributing/
 nav_order: 6
 grapharch:
-  subject: urn:triplifier:website:page:contributing
+  subject: urn:triplify:website:page:contributing
 ---
 
 # Contributing
 
-Triplifier is open source under the MIT license. Issues and pull requests are
-welcome on [GitHub](https://github.com/EKGF/triplifier).
+Triplify is open source under the MIT license. Issues and pull requests are
+welcome on [GitHub](https://github.com/EKGF/triplify).
 
 ## Principle
 
@@ -76,7 +76,10 @@ with exactly one scope: `cli`, `reader`, `emit`, `writer`, `walk`, `source`,
 
 Releases are cut with `cog bump` on `main`, which sets the crate version and
 tags `v<version>`. A `v*` tag builds the Python wheels for every supported
-platform and the source distribution, and publishes them to PyPI.
+platform and the source distribution, and publishes them to PyPI as the
+project `triplify` through a PyPI trusted publisher (the `ci.yml` workflow,
+environment `pypi`). The crate is published to crates.io under the same name
+with `cargo publish`.
 
 ## Documentation website
 

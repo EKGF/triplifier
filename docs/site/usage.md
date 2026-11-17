@@ -1,10 +1,10 @@
 ---
 title: "Usage"
-description: "Command-line reference for triplifier: input paths, output formats chosen by file name, gzip compression and RDFC-1.0 canonical output."
+description: "Command-line reference for triplify: input paths, output formats chosen by file name, gzip compression and RDFC-1.0 canonical output."
 permalink: /usage/
 nav_order: 3
 grapharch:
-  subject: urn:triplifier:website:page:usage
+  subject: urn:triplify:website:page:usage
 ---
 
 # Usage
@@ -13,12 +13,12 @@ One command, a list of paths and an optional output file.
 
 ## Command-line reference
 
-This is the output of `triplifier --help`:
+This is the output of `triplify --help`:
 
 ```text
-Triplifier turns any tabular data dump (CSV, XLSX, ...) into raw RDF using the EKGF Raw Data Ontology, with DCAT, PROV and git provenance, without any mapping
+Triplify turns any tabular data dump (CSV, XLSX, ...) into raw RDF using the EKGF Raw Data Ontology, with DCAT, PROV and git provenance, without any mapping
 
-Usage: triplifier [OPTIONS] [PATHS]...
+Usage: triplify [OPTIONS] [PATHS]...
 
 Arguments:
   [PATHS]...  Files or directories to triplify (directories are walked, honouring .gitignore) [default: .]
@@ -34,7 +34,7 @@ Options:
 
 ## Inputs
 
-Give any mix of files and directories; with none, triplifier reads the current
+Give any mix of files and directories; with none, triplify reads the current
 directory. Directories are walked in parallel. The walk honours `.gitignore`,
 `.git/info/exclude` and your global Git excludes, and skips hidden files and
 directories.
@@ -74,7 +74,7 @@ byte for byte. This mode buffers the whole dataset in memory. It does not
 support TriG.
 
 ```sh
-triplifier ./dumps --canonical -o raw.nq
+triplify ./dumps --canonical -o raw.nq
 ```
 
 ## Logging and exit status
@@ -91,11 +91,11 @@ many sources failed.
 
 ```sh
 # Every table under ./dumps, as compressed N-Quads
-triplifier ./dumps -o raw.nq.gz
+triplify ./dumps -o raw.nq.gz
 
 # Two specific files, all graphs merged into N-Triples
-triplifier orders.csv rates.xlsx -o raw.nt
+triplify orders.csv rates.xlsx -o raw.nt
 
 # The current directory, to stdout
-triplifier > raw.nq
+triplify > raw.nq
 ```

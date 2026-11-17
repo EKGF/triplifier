@@ -1,10 +1,10 @@
 ---
-title: "Triplifier"
-description: "Turn any data dump into raw RDF. Triplifier captures CSV, TSV and spreadsheet files as the EKGF Raw Data Ontology, with DCAT, SPDX, Git and PROV provenance, and no mapping."
+title: "Triplify"
+description: "Turn any data dump into raw RDF. Triplify captures CSV, TSV and spreadsheet files as the EKGF Raw Data Ontology, with DCAT, SPDX, Git and PROV provenance, and no mapping."
 permalink: /
 nav_order: 1
 grapharch:
-  subject: urn:triplifier:website:page:home
+  subject: urn:triplify:website:page:home
   hero: landing
   panel_sections: [what-it-does]
   feature_sections: [principles]
@@ -17,19 +17,19 @@ grapharch:
 
 EKGF tool
 
-# Triplifier
+# Triplify
 
 Turn any data dump into raw RDF. No mapping and almost no options.
 
-[Install](install.md) [Usage](usage.md) [Source on GitHub](https://github.com/EKGF/triplifier)
+[Install](install.md) [Usage](usage.md) [Source on GitHub](https://github.com/EKGF/triplify)
 
 ## What it does
 
 ```sh
-triplifier ./dumps -o raw.nq.gz
+triplify ./dumps -o raw.nq.gz
 ```
 
-Triplifier walks the files and directories you give it, honouring
+Triplify walks the files and directories you give it, honouring
 `.gitignore`, and captures every table it can read as RDF. It reads CSV, TSV,
 XLSX, XLSM, XLSB, XLS and ODS files. The output follows the
 [EKGF Raw Data Ontology](https://github.com/EKGF/ekg-ontologies/blob/main/ekgf-raw.ttl):
@@ -43,7 +43,7 @@ the run. See [Output model](output-model.md) for the details.
 
 ### Capture, never map
 
-Readers report physical structure and the source's own value types. Triplifier
+Readers report physical structure and the source's own value types. Triplify
 never infers datatypes from text, never picks key columns and never renames
 anything. Mapping happens later, in the graph, with SPARQL and SHACL.
 

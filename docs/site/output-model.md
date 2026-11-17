@@ -1,10 +1,10 @@
 ---
 title: "Output model"
-description: "What triplifier emits: one named graph per source with the EKGF Raw Data Ontology, DCAT distribution metadata, SPDX SHA-256 checksums, Git origin, a PROV run graph, and recomputable urn:uuid identifiers."
+description: "What triplify emits: one named graph per source with the EKGF Raw Data Ontology, DCAT distribution metadata, SPDX SHA-256 checksums, Git origin, a PROV run graph, and recomputable urn:uuid identifiers."
 permalink: /output-model/
 nav_order: 4
 grapharch:
-  subject: urn:triplifier:website:page:output-model
+  subject: urn:triplify:website:page:output-model
 ---
 
 # Output model
@@ -92,7 +92,7 @@ For a file inside a Git work tree, the source also records:
 ## Run provenance
 
 The run graph holds a `prov:Activity` with its start and end times, associated
-with a `prov:SoftwareAgent` for this triplifier version. The activity
+with a `prov:SoftwareAgent` for this triplify version. The activity
 `prov:used` every source. Each source graph is a `dcat:Dataset` that
 `prov:wasDerivedFrom` its source and `prov:wasGeneratedBy` the run.
 
@@ -133,7 +133,7 @@ Integers are decimal with no leading zeros.
 | column (1-based) | `source/<sha256>/view/<v>/column/<c>` |
 | row (0-based) | `source/<sha256>/view/<v>/row/<r>` |
 | value | `source/<sha256>/view/<v>/row/<r>/column/<c>` |
-| software agent | `agent/triplifier/<version>` |
+| software agent | `agent/triplify/<version>` |
 
 A run is an event, not content. It gets a time-ordered UUIDv7, and its graph is
 `uuidv8_sha256(<run uuid>, "graph")`.

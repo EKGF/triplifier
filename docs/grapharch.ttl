@@ -1,19 +1,19 @@
-# GraphArch publication definitions for the triplifier project website.
+# GraphArch publication definitions for the triplify project website.
 # The pages are the source-owned Markdown files in docs/site/. Publication
 # settings only; no ontology axioms.
 @prefix ga: <https://ekgf.org/ontology/grapharch#> .
 @prefix dct: <http://purl.org/dc/terms/> .
-@prefix site: <urn:triplifier:website:> .
+@prefix site: <urn:triplify:website:> .
 
 site:project a ga:Project ;
-    dct:title "Triplifier" ;
-    ga:repository <https://github.com/EKGF/triplifier> ;
+    dct:title "Triplify" ;
+    ga:repository <https://github.com/EKGF/triplify> ;
     ga:scope site:scope ;
     ga:target site:website .
 site:scope a ga:Scope .
 
 site:website a ga:Target ;
-    dct:title "Triplifier" ;
+    dct:title "Triplify" ;
     ga:scope site:scope ;
     ga:profile site:profile ;
     ga:renderer ga:WebsiteRenderer ;
@@ -23,4 +23,4 @@ site:profile a ga:Profile ;
     ga:theme ga:EkgfProjectTheme ;
     ga:headerLink site:github .
 site:github dct:title "GitHub" ;
-    ga:url "https://github.com/EKGF/triplifier" ; ga:order 1 .
+    ga:url "https://github.com/EKGF/triplify" ; ga:order 1 .
