@@ -23,7 +23,7 @@
 //! source/<sha256>/view/<v>/column/<c>           c ≥ 1
 //! source/<sha256>/view/<v>/row/<r>              r ≥ 0
 //! source/<sha256>/view/<v>/row/<r>/column/<c>
-//! agent/triplifier/<semver>
+//! agent/triplify/<semver>
 //! ```
 //!
 //! Anyone can recompute any IRI from the source bytes and a position. Runs
@@ -47,7 +47,7 @@ pub fn uuid_v8_sha256(namespace: Uuid, name: &str) -> Uuid {
     Uuid::new_v8(bytes)
 }
 
-/// The triplifier's UUID namespace.
+/// Triplify's UUID namespace.
 pub static NAMESPACE: LazyLock<Uuid> = LazyLock::new(|| {
     uuid_v8_sha256(Uuid::NAMESPACE_URL, crate::vocab::raw::NS)
 });
@@ -147,7 +147,7 @@ impl ViewIris {
     }
 }
 
-/// One triplifier run (a `prov:Activity`), identified by a UUIDv7.
+/// One run of triplify (a `prov:Activity`), identified by a UUIDv7.
 #[derive(Debug, Clone)]
 pub struct RunIri {
     node:  NamedNode,
@@ -169,7 +169,7 @@ impl RunIri {
 
     pub fn agent() -> NamedNode {
         ResourceName(format!(
-            "agent/triplifier/{}",
+            "agent/triplify/{}",
             env!("CARGO_PKG_VERSION")
         ))
         .iri()

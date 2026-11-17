@@ -1,12 +1,12 @@
 [package]
-name = "triplifier"
+name = "triplify"
 version = "0.1.0"
 edition = "2024"
 rust-version = "1.92"
-description = "Triplifier turns any tabular data dump (CSV, XLSX, ...) into raw RDF using the EKGF Raw Data Ontology, with DCAT, PROV and git provenance, without any mapping"
+description = "Triplify turns any tabular data dump (CSV, XLSX, ...) into raw RDF using the EKGF Raw Data Ontology, with DCAT, PROV and git provenance, without any mapping"
 authors = ["Jacobus Geluk <jacobus.geluk@ekgf.org>"]
 license = "MIT"
-repository = "https://github.com/EKGF/triplifier"
+repository = "https://github.com/EKGF/triplify"
 include = ["/src/**", "/Cargo.toml", "/Cargo.lock", "/LICENSE", "/README.md"]
 
 [dependencies]

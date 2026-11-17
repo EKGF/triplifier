@@ -1,12 +1,12 @@
-# Triplifier
+# Triplify
 
 Turn any data dump into raw RDF. No mapping and almost no options.
 
 ```sh
-triplifier ./dumps -o raw.nq.gz
+triplify ./dumps -o raw.nq.gz
 ```
 
-The triplifier walks the given files and directories, honouring `.gitignore`,
+Triplify walks the given files and directories, honouring `.gitignore`,
 and captures every table it can read as RDF. The output follows the
 [EKGF Raw Data Ontology](https://github.com/EKGF/ekg-ontologies/blob/main/ekgf-raw.ttl).
 Each source gets its own named graph, along with metadata:
@@ -19,8 +19,8 @@ Each source gets its own named graph, along with metadata:
 ## Install
 
 ```sh
-uv tool install triplifier     # or: pipx install triplifier / pip install triplifier
-cargo install triplifier       # from source
+uv tool install triplify     # or: pipx install triplify / pip install triplify
+cargo install triplify       # from source
 ```
 
 The PyPI package is a [maturin](https://www.maturin.rs/) `bin` wheel that
@@ -36,7 +36,7 @@ views, joins and functions against a live system, often a production one, and
 those queries take its locks and its load. Every source technology needs its own
 expertise up front, before a single triple exists.
 
-The triplifier reverses that. It reads the cheapest and most granular artefact a
+Triplify reverses that. It reads the cheapest and most granular artefact a
 system can produce, the data dump (CSV, spreadsheet, database export), offline
 and away from production. It turns it into RDF *as it physically is*:
 sources, views, columns, rows and values. Everything else happens later, in the
@@ -73,7 +73,7 @@ Rules:
 ## Usage
 
 ```text
-triplifier [PATHS]... [-o OUTPUT] [--canonical] [-v]
+triplify [PATHS]... [-o OUTPUT] [--canonical] [-v]
 ```
 
 | Output | Meaning |
@@ -140,7 +140,7 @@ decimal with no leading zeros):
 | column (1-based) | `source/<sha256>/view/<v>/column/<c>` |
 | row (0-based) | `source/<sha256>/view/<v>/row/<r>` |
 | value | `source/<sha256>/view/<v>/row/<r>/column/<c>` |
-| software agent | `agent/triplifier/<version>` |
+| software agent | `agent/triplify/<version>` |
 
 A run is an event, not content. It gets a time-ordered UUIDv7, and its graph is
 `uuidv8_sha256(<run uuid>, "graph")`.

@@ -1,4 +1,4 @@
-//! IRIs of every vocabulary term the triplifier emits.
+//! IRIs of every vocabulary term triplify emits.
 //!
 //! All `raw` terms are defined, with SHACL shapes, in
 //! `EKGF/ekg-ontologies/ekgf-raw.ttl`.

@@ -1,4 +1,4 @@
-# Triplifier contributor guidance
+# Triplify contributor guidance
 
 ## Principle
 

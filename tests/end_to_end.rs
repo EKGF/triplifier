@@ -4,8 +4,8 @@ use {
     oxrdf::{Dataset, NamedNodeRef, QuadRef},
     oxrdfio::{RdfFormat, RdfParser},
     std::{io::Read, path::Path},
-    triplifier::{
-        Triplifier,
+    triplify::{
+        Triplify,
         vocab::{dcat, raw, rdf, xsd},
         writer::Output,
     },
@@ -42,8 +42,8 @@ fn fixtures(dir: &Path) {
     std::fs::write(dir.join("notes.txt"), b"hello").unwrap();
 }
 
-async fn run(dir: &Path, out: &Path, canonical: bool) -> triplifier::Summary {
-    Triplifier::new(
+async fn run(dir: &Path, out: &Path, canonical: bool) -> triplify::Summary {
+    Triplify::new(
         vec![dir.to_owned()],
         Output::file(out.to_owned(), canonical).unwrap(),
     )

@@ -14,7 +14,7 @@ use {
     tokio::io::AsyncReadExt,
 };
 
-/// Formats the triplifier can read. Add a variant to support a new format.
+/// Formats triplify can read. Add a variant to support a new format.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SourceKind {
     Csv,

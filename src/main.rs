@@ -1,7 +1,7 @@
 use {
     clap::Parser,
     std::path::PathBuf,
-    triplifier::{Triplifier, writer::Output},
+    triplify::{Triplify, writer::Output},
 };
 
 /// Turn every CSV/TSV/XLSX/XLS/ODS file under the given paths into raw RDF.
@@ -49,7 +49,7 @@ async fn main() -> anyhow::Result<()> {
         Some(path) => Output::file(path, cli.canonical)?,
         None => Output::stdout(cli.canonical),
     };
-    let summary = Triplifier::new(cli.paths, output).run().await?;
+    let summary = Triplify::new(cli.paths, output).run().await?;
     tracing::info!(?summary, "done");
     anyhow::ensure!(
         summary.failed == 0,

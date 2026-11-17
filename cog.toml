@@ -15,7 +15,7 @@ post_bump_hooks = []
 [git_hooks.commit-msg]
 script = """#!/bin/sh
 cog verify --file "$1" || exit $?
-base="${TRIPLIFIER_COMMIT_BASE:-refs/remotes/origin/main}"
+base="${TRIPLIFY_COMMIT_BASE:-refs/remotes/origin/main}"
 if git rev-parse --verify "$base^{commit}" >/dev/null 2>&1; then
     cog check "$base..HEAD" || exit $?
 else
@@ -36,5 +36,5 @@ path = "CHANGELOG.md"
 template = "remote"
 remote = "github.com"
 owner = "EKGF"
-repository = "Triplifier"
+repository = "Triplify"
 authors = [{ signature = "Jacobus Geluk", username = "jgeluk" }]

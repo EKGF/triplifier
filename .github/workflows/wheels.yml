@@ -42,10 +42,10 @@ jobs:
         run: |
           python -m venv .smoke || exit $?
           if [[ -x .smoke/bin/python ]]; then py=.smoke/bin/python; bin=.smoke/bin; else py=.smoke/Scripts/python.exe; bin=.smoke/Scripts; fi
-          "$py" -m pip install --no-index --find-links dist triplifier || exit $?
+          "$py" -m pip install --no-index --find-links dist triplify || exit $?
           printf 'a,b\n1,00123\n' > smoke.csv || exit $?
-          "$bin/triplifier" --version || exit $?
-          "$bin/triplifier" smoke.csv -o smoke.nq || exit $?
+          "$bin/triplify" --version || exit $?
+          "$bin/triplify" smoke.csv -o smoke.nq || exit $?
           grep -q '"00123"' smoke.nq || { printf 'smoke output lacks the CSV value\n' >&2; exit 1; }
       - uses: actions/upload-artifact@v4
         with:

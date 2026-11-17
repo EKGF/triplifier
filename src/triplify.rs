@@ -31,7 +31,7 @@ pub struct Summary {
 }
 
 #[derive(Debug, Clone)]
-pub struct Triplifier {
+pub struct Triplify {
     roots:       Vec<PathBuf>,
     output:      Output,
     concurrency: usize,
@@ -43,7 +43,7 @@ enum Outcome {
     Failed,
 }
 
-impl Triplifier {
+impl Triplify {
     pub fn new(roots: Vec<PathBuf>, output: Output) -> Self {
         let concurrency =
             std::thread::available_parallelism().map_or(4, |n| n.get());
