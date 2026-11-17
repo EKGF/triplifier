@@ -1,0 +1,14 @@
+version: 2
+updates:
+  # Keeps the pinned GraphArch action and the GitHub actions current. A
+  # GraphArch bump installs the release of the pinned action commit.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: daily
+    # Dependabot waits 3 days after a release by default. GraphArch is an EKGF
+    # action that releases several times a day, so it is exempt from the wait.
+    cooldown:
+      default-days: 3
+      exclude:
+        - "EKGF/grapharch"

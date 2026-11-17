@@ -1,0 +1,4 @@
+version: 2
+platform: github-pages
+mount: /
+site: ../_site/site
