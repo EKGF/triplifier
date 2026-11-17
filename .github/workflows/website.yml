@@ -47,7 +47,7 @@ jobs:
           --config docs/hosting.yaml
           --output-root _site/pages
           --mount /
-      - uses: actions/upload-pages-artifact@v4
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: _site/pages/static
   deploy:
