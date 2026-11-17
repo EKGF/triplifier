@@ -1,0 +1,38 @@
+[package]
+name = "triplifier"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.92"
+description = "Triplifier turns any tabular data dump (CSV, XLSX, ...) into raw RDF using the EKGF Raw Data Ontology, with DCAT, PROV and git provenance, without any mapping"
+authors = ["Jacobus Geluk <jacobus.geluk@ekgf.org>"]
+license = "MIT"
+repository = "https://github.com/EKGF/triplifier"
+include = ["/src/**", "/docs/ontology/*.ttl", "/Cargo.toml", "/Cargo.lock", "/LICENSE", "/README.md"]
+
+[dependencies]
+anyhow = "1"
+async-compression = { version = "0.4.52", features = ["tokio", "gzip"] }
+calamine = { version = "0.38", features = ["dates"] }
+chrono = "0.4"
+clap = { version = "4.6", features = ["derive", "env"] }
+clap-verbosity-flag = { version = "3", features = ["tracing"] }
+csv-async = { version = "1.3", features = ["tokio"] }
+futures = "0.3"
+gix = { version = "0.90", default-features = false, features = ["sha1", "revision"] }
+hex = "0.4"
+ignore = "0.4.34"
+oxrdf = { version = "0.3.5", features = ["rdfc-10"] }
+oxrdfio = { version = "0.2.7", features = ["async-tokio"] }
+sha1 = "0.11"
+sha2 = "0.11"
+thiserror = "2"
+tokio = { version = "1", features = ["fs", "io-std", "io-util", "macros", "rt-multi-thread", "sync"] }
+tokio-stream = "0.1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+url = "2.5"
+
+[dev-dependencies]
+flate2 = "1.1.11"
+rust_xlsxwriter = "0.102.0"
+tempfile = "3"

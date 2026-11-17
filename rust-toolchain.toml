@@ -1,0 +1,6 @@
+[toolchain]
+# Keep local builds, CI, and distribution builds on the same tested compiler.
+channel = "nightly-2026-10-30"
+components = ["rustfmt", "clippy"]
+# We may want run GraphArch in the browser
+targets = ["wasm32-unknown-unknown"]
