@@ -31,6 +31,7 @@ tokio-stream = "0.1"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 url = "2.5"
+uuid = { version = "1.29.3", features = ["v7", "v8"] }
 
 [dev-dependencies]
 flate2 = "1.1.11"

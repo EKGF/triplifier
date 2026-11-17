@@ -3,7 +3,7 @@
 use {
     crate::{
         emit::{GraphEmitter, QuadSender, SourceEmitter},
-        iri::{BaseIri, ContentDigest, RunIri, SourceIris},
+        iri::{ContentDigest, RunIri, SourceIris},
         source::Source,
         vocab::{dcat, prov, rdf, xsd},
         walk::{Candidate, Walker},
@@ -32,7 +32,6 @@ pub struct Summary {
 
 #[derive(Debug, Clone)]
 pub struct Triplifier {
-    base:        BaseIri,
     roots:       Vec<PathBuf>,
     output:      Output,
     concurrency: usize,
@@ -45,15 +44,15 @@ enum Outcome {
 }
 
 impl Triplifier {
-    pub fn new(roots: Vec<PathBuf>, output: Output, base: BaseIri) -> Self {
+    pub fn new(roots: Vec<PathBuf>, output: Output) -> Self {
         let concurrency =
             std::thread::available_parallelism().map_or(4, |n| n.get());
-        Self { base, roots, output, concurrency }
+        Self { roots, output, concurrency }
     }
 
     pub async fn run(self) -> anyhow::Result<Summary> {
         let started = chrono::Utc::now();
-        let run = RunIri::new(&self.base, started);
+        let run = RunIri::new();
         let (tx, rx) = mpsc::channel(self.concurrency * 4);
         let writer = tokio::spawn(self.output.clone().run(rx));
 
@@ -122,7 +121,7 @@ impl Triplifier {
             );
             return Ok(None);
         }
-        let iris = SourceIris::new(&self.base, source.digest());
+        let iris = SourceIris::new(source.digest());
         let mut out = GraphEmitter::new(iris.graph(), tx);
         source.describe(&iris, &mut out);
         let emitter =
@@ -140,9 +139,9 @@ impl Triplifier {
         produced: &[(NamedNode, NamedNode)],
         tx: QuadSender,
     ) -> anyhow::Result<()> {
-        let mut out = GraphEmitter::new(run.graph(), tx);
+        let mut out = GraphEmitter::new(run.graph().clone(), tx);
         let a = run.node().clone();
-        let agent = RunIri::agent(&self.base);
+        let agent = RunIri::agent();
         let time = |t: chrono::DateTime<chrono::Utc>| {
             Literal::new_typed_literal(t.to_rfc3339(), xsd::DATE_TIME)
         };

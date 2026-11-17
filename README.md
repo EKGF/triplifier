@@ -48,10 +48,9 @@ Rules:
 
 - **No guessing.** CSV fields are always `xsd:string`, so `"00123"` stays
   `"00123"`. Spreadsheet cells keep the type the workbook stored them with.
-- **Positional identity.** IRIs are derived from the SHA-256 of the content
-  plus physical positions, for example `urn:ekgf:raw:source:<sha256>:view:1:row:7:column:3`.
-  The same bytes always give the same IRIs, wherever the file lives.
-  Identical files found twice are triplified once.
+- **Positional, content-addressed identity.** Every IRI is a `urn:uuid:` that
+  anyone can recompute from the source bytes and a position. See
+  [Identifiers](#identifiers). Identical files found twice are triplified once.
 - **Columns are physical.** Header text is only a label, and ragged rows
   just add columns.
 - The output conforms to the SHACL shapes in `ekgf-raw.ttl`. Terms not yet
@@ -60,7 +59,7 @@ Rules:
 ## Usage
 
 ```text
-triplifier [PATHS]... [-o OUTPUT] [--canonical] [--base IRI] [-v]
+triplifier [PATHS]... [-o OUTPUT] [--canonical] [-v]
 ```
 
 | Output | Meaning |
@@ -72,11 +71,42 @@ triplifier [PATHS]... [-o OUTPUT] [--canonical] [--base IRI] [-v]
 
 `--canonical` writes [RDFC-1.0](https://www.w3.org/TR/rdf-canon/) canonical
 N-Quads or N-Triples. This mode buffers the dataset in memory; all other modes
-stream. `--base` (or `TRIPLIFIER_BASE`) replaces the default `urn:ekgf:raw:`.
+stream.
 
 Formats read: CSV, TSV, XLSX/XLSM/XLSB, XLS and ODS. XLSX is read cell by
 cell (streaming). Files are processed concurrently, one per core, into a single
 writer.
+
+## Identifiers
+
+Every resource has a canonical *name*. Its IRI is the name-based
+**UUIDv8 with SHA-256** of [RFC 9562](https://www.rfc-editor.org/rfc/rfc9562)
+(§6.5, Appendix B.2):
+
+```text
+digest = SHA-256( NAMESPACE.bytes ‖ UTF-8(name) )
+uuid   = digest[0..16] with version := 8, variant := 0b10
+iri    = urn:uuid:<lowercase hyphenated uuid>
+
+NAMESPACE = uuidv8_sha256(NameSpace_URL, "https://ekgf.org/ontology/raw#")
+```
+
+Names (`<sha256>` is the lowercase hex SHA-256 of the source bytes; integers are
+decimal with no leading zeros):
+
+| Resource | Name |
+| --- | --- |
+| source | `source/<sha256>` |
+| its named graph | `source/<sha256>/graph` |
+| its checksum | `source/<sha256>/checksum` |
+| view (1-based) | `source/<sha256>/view/<v>` |
+| column (1-based) | `source/<sha256>/view/<v>/column/<c>` |
+| row (0-based) | `source/<sha256>/view/<v>/row/<r>` |
+| value | `source/<sha256>/view/<v>/row/<r>/column/<c>` |
+| software agent | `agent/triplifier/<version>` |
+
+A run is an event, not content. It gets a time-ordered UUIDv7, and its graph is
+`uuidv8_sha256(<run uuid>, "graph")`.
 
 ## Roadmap
 

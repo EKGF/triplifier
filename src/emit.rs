@@ -267,10 +267,7 @@ impl ViewEmitter<'_> {
 
 #[cfg(test)]
 mod tests {
-    use {
-        super::*,
-        crate::iri::{BaseIri, ContentDigest},
-    };
+    use {super::*, crate::iri::ContentDigest};
 
     #[test]
     fn text_cell_stays_a_string() {
@@ -282,8 +279,7 @@ mod tests {
     #[test]
     fn null_cell_has_no_literal_but_keeps_text() {
         let (tx, mut rx) = mpsc::channel(1);
-        let iris =
-            SourceIris::new(&BaseIri::default(), ContentDigest::new([1; 32]));
+        let iris = SourceIris::new(ContentDigest::new([1; 32]));
         let mut src = SourceEmitter::new(
             iris.clone(),
             GraphEmitter::new(iris.graph(), tx),

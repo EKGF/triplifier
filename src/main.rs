@@ -1,7 +1,7 @@
 use {
     clap::Parser,
     std::path::PathBuf,
-    triplifier::{Triplifier, iri::BaseIri, writer::Output},
+    triplifier::{Triplifier, writer::Output},
 };
 
 /// Turn every CSV/TSV/XLSX/XLS/ODS file under the given paths into raw RDF.
@@ -22,10 +22,6 @@ struct Cli {
     /// memory).
     #[arg(long)]
     canonical: bool,
-
-    /// Base IRI for minted resources.
-    #[arg(long, default_value = BaseIri::DEFAULT, env = "TRIPLIFIER_BASE")]
-    base: BaseIri,
 
     #[command(flatten)]
     verbose: clap_verbosity_flag::Verbosity<clap_verbosity_flag::WarnLevel>,
@@ -53,7 +49,7 @@ async fn main() -> anyhow::Result<()> {
         Some(path) => Output::file(path, cli.canonical)?,
         None => Output::stdout(cli.canonical),
     };
-    let summary = Triplifier::new(cli.paths, output, cli.base).run().await?;
+    let summary = Triplifier::new(cli.paths, output).run().await?;
     tracing::info!(?summary, "done");
     anyhow::ensure!(
         summary.failed == 0,

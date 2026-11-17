@@ -6,7 +6,6 @@ use {
     std::{io::Read, path::Path},
     triplifier::{
         Triplifier,
-        iri::BaseIri,
         vocab::{dcat, raw, rdf, xsd},
         writer::Output,
     },
@@ -37,7 +36,6 @@ async fn run(dir: &Path, out: &Path, canonical: bool) -> triplifier::Summary {
     Triplifier::new(
         vec![dir.to_owned()],
         Output::file(out.to_owned(), canonical).unwrap(),
-        BaseIri::default(),
     )
     .run()
     .await
@@ -119,11 +117,17 @@ async fn canonical_ntriples_is_sorted_and_deterministic() {
     let b = out_dir.path().join("b.nt");
     run(input.path(), &a, true).await;
     run(input.path(), &b, true).await;
+    // Everything except the run (a UUIDv7 event) must be identical.
     let strip_run = |p: &Path| -> Vec<String> {
-        std::fs::read_to_string(p)
-            .unwrap()
+        let text = std::fs::read_to_string(p).unwrap();
+        let run = text
             .lines()
-            .filter(|l| !l.contains(":run:"))
+            .find(|l| l.ends_with("<http://www.w3.org/ns/prov#Activity> ."))
+            .and_then(|l| l.split_whitespace().next())
+            .unwrap()
+            .to_owned();
+        text.lines()
+            .filter(|l| !l.contains(&run))
             .map(str::to_owned)
             .collect()
     };
