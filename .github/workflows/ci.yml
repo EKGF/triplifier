@@ -1,15 +1,35 @@
-name: Python wheels
+name: CI
 on:
   push:
+    branches: [main, "feature/**"]
     tags: ["v*"]
   pull_request:
-    paths: [pyproject.toml, packaging/**, Cargo.toml, Cargo.lock, .github/workflows/wheels.yml]
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
-  build:
+  test:
+    name: test ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup show
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo fmt --all --check
+      - run: cargo clippy --locked --lib -- -D warnings
+      - run: cargo clippy --locked --bins -- -D warnings
+      - run: cargo clippy --locked --tests -- -D warnings
+      - run: cargo test --locked --lib
+      - run: cargo test --locked --tests
+
+  wheels:
     name: wheel ${{ matrix.target }}
+    # Pull requests only run the tests; main, tags and manual runs build wheels.
+    if: github.event_name != 'pull_request'
+    needs: test
     strategy:
       fail-fast: false
       matrix:
@@ -51,7 +71,10 @@ jobs:
         with:
           name: wheel-${{ matrix.target }}
           path: dist/*.whl
+
   sdist:
+    if: github.event_name != 'pull_request'
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -64,9 +87,11 @@ jobs:
         with:
           name: sdist
           path: dist/*.tar.gz
+
   publish-pypi:
+    # PyPI trusted publisher: EKGF/triplify, workflow ci.yml, environment pypi.
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: [build, sdist]
+    needs: [wheels, sdist]
     runs-on: ubuntu-latest
     environment: pypi
     permissions:

@@ -26,6 +26,9 @@ cargo install triplify       # from source
 The PyPI package is a [maturin](https://www.maturin.rs/) `bin` wheel that
 contains the native executable, the same as GraphArch's. Build one locally with
 `uvx maturin build --release --locked --out dist`.
+`.github/workflows/ci.yml` tests every push and pull request, builds wheels on
+`main`, and publishes to PyPI on `v*` tags. Publishing uses a PyPI trusted
+publisher: workflow `ci.yml`, environment `pypi`.
 
 ## Why capture first, map later
 
