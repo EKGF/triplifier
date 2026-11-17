@@ -1,0 +1,66 @@
+name: Website
+# Builds the GraphArch project website from docs/site/ and docs/grapharch.ttl
+# on every pull request, and deploys it to GitHub Pages from main.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: website-${{ github.ref }}
+  # Queue, never cancel: a newer event must not abort an in-flight Pages
+  # deployment (EKGF/dprod#308). GitHub keeps only the newest pending run.
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      # The engine pin lives in this step so that Dependabot can bump it.
+      - name: Install the GraphArch release of the pinned action
+        id: grapharch
+        uses: EKGF/grapharch@7f30de80057faa1247f027a3166a0eb81b8c7025 # v0.2.25
+        with:
+          mode: install
+      - name: Build the website
+        env:
+          GRAPHARCH: ${{ steps.grapharch.outputs.binary-path }}
+          # default on main, pr-<number> for a pull request preview.
+          EDITION: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || 'default' }}
+        run: >-
+          "$GRAPHARCH" publication build-site
+          --source docs/site
+          --definitions docs/grapharch.ttl
+          --project urn:triplify:website:project
+          --target urn:triplify:website:website
+          --edition "$EDITION"
+          --output-root _site
+      - name: Package the website for GitHub Pages
+        env:
+          GRAPHARCH: ${{ steps.grapharch.outputs.binary-path }}
+        run: >-
+          "$GRAPHARCH" publication package-site
+          --config docs/hosting.yaml
+          --output-root _site/pages
+          --mount /
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site/pages/static
+  deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

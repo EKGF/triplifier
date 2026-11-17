@@ -13,4 +13,4 @@ jobs:
           fetch-depth: 0
       - uses: cocogitto/cocogitto-action@v4
         with:
-          check-latest-tag-only: true
+          command: check
