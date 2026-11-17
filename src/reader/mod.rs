@@ -7,10 +7,11 @@ mod spreadsheet;
 use {
     crate::{
         emit::{CellValue, SourceEmitter, ViewEmitter},
+        formula::{Formula, R1C1},
         iri::{ColumnNumber, RowNumber},
         source::{Source, SourceKind},
     },
-    std::collections::BTreeMap,
+    std::collections::{BTreeMap, BTreeSet},
 };
 
 /// Read `source` completely, emitting into `emitter`.
@@ -30,11 +31,12 @@ pub async fn read(
 /// Turns a row-major stream of `(physical row, physical column, cell)` into
 /// raw columns, rows and values. The first physical row seen is the header.
 pub(crate) struct TableBuilder<'v, 'e> {
-    view:        &'v mut ViewEmitter<'e>,
-    header_row:  Option<u64>,
-    header:      BTreeMap<u32, String>,
-    header_done: bool,
-    current_row: Option<u64>,
+    view:            &'v mut ViewEmitter<'e>,
+    header_row:      Option<u64>,
+    header:          BTreeMap<u32, String>,
+    header_done:     bool,
+    current_row:     Option<u64>,
+    column_formulas: BTreeMap<u32, BTreeSet<R1C1>>,
 }
 
 impl<'v, 'e> TableBuilder<'v, 'e> {
@@ -45,6 +47,7 @@ impl<'v, 'e> TableBuilder<'v, 'e> {
             header: BTreeMap::new(),
             header_done: false,
             current_row: None,
+            column_formulas: BTreeMap::new(),
         }
     }
 
@@ -52,10 +55,36 @@ impl<'v, 'e> TableBuilder<'v, 'e> {
 
     /// `row` and `column` are 0-based physical positions.
     pub fn cell(&mut self, row: u64, column: u32, cell: CellValue) {
+        self.put(row, column, cell, None);
+    }
+
+    /// A cell computed by `formula`; `cached` is the value the workbook
+    /// stored for it, if any.
+    pub fn formula_cell(
+        &mut self,
+        row: u64,
+        column: u32,
+        cached: Option<CellValue>,
+        formula: Formula,
+    ) {
+        let cell = cached.unwrap_or(CellValue::Null { source_text: None });
+        self.put(row, column, cell, Some(formula));
+    }
+
+    fn put(
+        &mut self,
+        row: u64,
+        column: u32,
+        cell: CellValue,
+        formula: Option<Formula>,
+    ) {
         let header_row = *self.header_row.get_or_insert(row);
+        let physical = (row, column);
         let column = ColumnNumber(column + 1);
-        if row == header_row {
-            self.header.insert(column.0, cell.header_text());
+        if row <= header_row {
+            if row == header_row {
+                self.header.insert(column.0, cell.header_text());
+            }
             return;
         }
         self.finish_header();
@@ -65,6 +94,14 @@ impl<'v, 'e> TableBuilder<'v, 'e> {
             self.view.row(row);
         }
         self.view.value(row, column, &cell);
+        if let Some(formula) = formula {
+            let r1c1 = formula.to_r1c1(physical.0, physical.1);
+            self.view.formula(row, column, &formula, &r1c1);
+            let forms = self.column_formulas.entry(column.0).or_default();
+            if forms.len() < 2 {
+                forms.insert(r1c1);
+            }
+        }
     }
 
     fn finish_header(&mut self) {
@@ -81,7 +118,14 @@ impl<'v, 'e> TableBuilder<'v, 'e> {
         }
     }
 
-    pub fn finish(mut self) { self.finish_header(); }
+    pub fn finish(mut self) {
+        self.finish_header();
+        for (column, forms) in std::mem::take(&mut self.column_formulas) {
+            if let [single] = forms.into_iter().collect::<Vec<_>>().as_slice() {
+                self.view.column_formula(ColumnNumber(column), single);
+            }
+        }
+    }
 }
 
 impl CellValue {

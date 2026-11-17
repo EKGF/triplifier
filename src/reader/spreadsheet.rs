@@ -5,12 +5,53 @@ use {
     super::TableBuilder,
     crate::{
         emit::{CellValue, SourceEmitter},
+        formula::Formula,
         iri::ViewNumber,
     },
     anyhow::Context,
     calamine::{Data, DataRef, Reader, Sheets, open_workbook_auto},
-    std::path::PathBuf,
+    std::{collections::BTreeMap, path::PathBuf},
+    tracing::warn,
 };
+
+type Formulas = BTreeMap<(u64, u32), Formula>;
+
+/// All formulas of a sheet keyed by absolute 0-based position.
+fn formulas(
+    workbook: &mut Sheets<std::io::BufReader<std::fs::File>>,
+    sheet: &str,
+) -> Formulas {
+    let range = match workbook.worksheet_formula(sheet) {
+        Ok(r) => r,
+        Err(e) => {
+            warn!("formulas of sheet {sheet:?} not readable: {e}");
+            return Formulas::new();
+        },
+    };
+    let (row0, col0) = range.start().unwrap_or((0, 0));
+    range
+        .used_cells()
+        .filter_map(|(r, c, text)| {
+            let pos = (u64::from(row0) + r as u64, col0 + c as u32);
+            Formula::new(text.as_str()).map(|f| (pos, f))
+        })
+        .collect()
+}
+
+/// Emit a cell, with its formula when it has one.
+fn put(
+    table: &mut TableBuilder<'_, '_>,
+    formulas: &mut Formulas,
+    row: u64,
+    col: u32,
+    value: Option<CellValue>,
+) {
+    match (formulas.remove(&(row, col)), value) {
+        (Some(f), cached) => table.formula_cell(row, col, cached, f),
+        (None, Some(v)) => table.cell(row, col, v),
+        (None, None) => {},
+    }
+}
 
 pub async fn read(
     path: PathBuf,
@@ -29,6 +70,7 @@ fn read_blocking(
     for (index, name) in names.iter().enumerate() {
         let number = ViewNumber(u32::try_from(index + 1)?);
         let mut view = emitter.view(number, Some(name));
+        let mut formulas = formulas(&mut workbook, name);
         let mut table = TableBuilder::new(&mut view);
         match &mut workbook {
             // XLSX: true streaming, one cell at a time.
@@ -36,11 +78,14 @@ fn read_blocking(
                 let mut cells = xlsx.worksheet_cells_reader(name)?;
                 while let Some(cell) = cells.next_cell()? {
                     let (row, col) = cell.get_position();
-                    if let Some(value) =
-                        CellValue::from_data_ref(cell.get_value())
-                    {
-                        table.cell(u64::from(row), col, value);
-                    }
+                    let value = CellValue::from_data_ref(cell.get_value());
+                    put(
+                        &mut table,
+                        &mut formulas,
+                        u64::from(row),
+                        col,
+                        value,
+                    );
                     table.view().out().flush_if_full_blocking()?;
                 }
             },
@@ -49,17 +94,21 @@ fn read_blocking(
                 let (row0, col0) = range.start().unwrap_or((0, 0));
                 for (r, cells) in range.rows().enumerate() {
                     for (c, data) in cells.iter().enumerate() {
-                        if let Some(value) = CellValue::from_data(data) {
-                            table.cell(
-                                u64::from(row0) + r as u64,
-                                col0 + u32::try_from(c)?,
-                                value,
-                            );
-                        }
+                        put(
+                            &mut table,
+                            &mut formulas,
+                            u64::from(row0) + r as u64,
+                            col0 + u32::try_from(c)?,
+                            CellValue::from_data(data),
+                        );
                     }
                     table.view().out().flush_if_full_blocking()?;
                 }
             },
+        }
+        // Formula cells the value stream never reported (no cached value).
+        for ((row, col), f) in std::mem::take(&mut formulas) {
+            table.formula_cell(row, col, None, f);
         }
         table.finish();
     }

@@ -43,6 +43,8 @@ captured, immutable snapshot of that source's truth.
 | a data row | `raw:Row` (`raw:viewRowNumber`, 0-based) |
 | a non-empty cell | `raw:Value` (`raw:valueOf`, `raw:forColumn`, `raw:literalValue`) |
 | an error cell (`#N/A`) | `raw:NullValue` with `raw:sourceText` |
+| a formula cell | the cached result as above, plus `raw:formula` (A1) and `raw:formulaR1C1` |
+| a column filled with one formula | `raw:formulaR1C1` on the `raw:Column` |
 
 Rules:
 
@@ -76,6 +78,29 @@ stream.
 Formats read: CSV, TSV, XLSX/XLSM/XLSB, XLS and ODS. XLSX is read cell by
 cell (streaming). Files are processed concurrently, one per core, into a single
 writer.
+
+## Formulas
+
+Formulas are data too. Each formula cell keeps its cached result as
+`raw:literalValue`, or becomes a `raw:NullValue` when the workbook stored no
+result. It also keeps the formula verbatim (`raw:formula "A2*B2"`) and the same
+formula rewritten relative to its own cell (`raw:formulaR1C1 "RC[-2]*RC[-1]"`).
+When every formula in a column has the same relative form, which is the usual
+case for a filled-down formula, the column itself gets that `raw:formulaR1C1`.
+At that point the column is a derivation rule
+(`total = qty × price`) rather than a list of numbers.
+
+The next step, outside the capture step itself, is to compile these column
+rules into SHACL:
+
+- `sh:SPARQLRule` (SHACL-AF) to *recompute* a derived column;
+- `sh:sparql` constraints to *check* that cached results still agree with
+  their inputs;
+- cross-sheet references (`'Rates'!R2C3`) become joins between views.
+
+This needs a translator for the Excel function language into SPARQL.
+Arithmetic, comparisons, `IF`, `SUM`/`AVERAGE` over ranges and string
+functions cover most real workbooks.
 
 ## Identifiers
 
@@ -112,6 +137,7 @@ A run is an event, not content. It gets a time-ordered UUIDv7, and its graph is
 
 - PostgreSQL `pg_dump` / `COPY` output, Parquet, Avro, JSON Lines.
 - Direct JDBC/ODBC table dumps (full table scans only, no views).
+- Compile column formulas to SHACL rules and constraints (see [Formulas](#formulas)).
 - Upstream the extension terms into `ekgf-raw.ttl`.
 
 ## License

@@ -26,6 +26,16 @@ fn fixtures(dir: &Path) {
     ws.write_number(1, 1, 9.5).unwrap();
     ws.write_boolean(1, 2, true).unwrap();
     wb.add_worksheet().set_name("Empty").unwrap();
+    let ws = wb.add_worksheet().set_name("Calc").unwrap();
+    for (c, h) in ["qty", "price", "total"].iter().enumerate() {
+        ws.write_string(0, c as u16, *h).unwrap();
+    }
+    for r in 1..=3u32 {
+        ws.write_number(r, 0, f64::from(r)).unwrap();
+        ws.write_number(r, 1, 10.0).unwrap();
+        ws.write_formula(r, 2, format!("=A{0}*B{0}", r + 1).as_str())
+            .unwrap();
+    }
     wb.save(dir.join("orders.xlsx")).unwrap();
     // Excel lock file and an unsupported file are ignored.
     std::fs::write(dir.join("~$orders.xlsx"), b"junk").unwrap();
@@ -74,12 +84,32 @@ async fn csv_and_xlsx_to_gzipped_nquads() {
     assert_eq!(count(&ds, rdf::TYPE, raw::CSV_FILE), 1);
     assert_eq!(count(&ds, rdf::TYPE, raw::XLSX_FILE), 1);
     assert_eq!(count(&ds, rdf::TYPE, dcat::DATASET), 2);
-    assert_eq!(count(&ds, rdf::TYPE, raw::VIEW), 3);
-    // CSV: 3 header columns + 1 ragged; XLSX: 3.
-    assert_eq!(count(&ds, rdf::TYPE, raw::COLUMN), 7);
-    assert_eq!(count(&ds, rdf::TYPE, raw::ROW), 3);
+    assert_eq!(count(&ds, rdf::TYPE, raw::VIEW), 4);
+    // CSV: 3 header columns + 1 ragged; Orders: 3; Calc: 3.
+    assert_eq!(count(&ds, rdf::TYPE, raw::COLUMN), 10);
+    assert_eq!(count(&ds, rdf::TYPE, raw::ROW), 6);
     // CSV: 1,Alice,00123,2,7,extra ; XLSX: 42,9.5,true
-    assert_eq!(count(&ds, rdf::TYPE, raw::VALUE), 9);
+    // CSV 6 + Orders 3 + Calc 9 (formula cells carry their cached result).
+    assert_eq!(count(&ds, rdf::TYPE, raw::VALUE), 18);
+    assert_eq!(count(&ds, rdf::TYPE, raw::NULL_VALUE), 0);
+
+    let texts = |p: NamedNodeRef<'_>| -> Vec<String> {
+        let mut v: Vec<String> = ds
+            .iter()
+            .filter(|q| q.predicate == p)
+            .filter_map(|q| {
+                match q.object {
+                    oxrdf::TermRef::Literal(l) => Some(l.value().to_owned()),
+                    _ => None,
+                }
+            })
+            .collect();
+        v.sort();
+        v
+    };
+    assert_eq!(texts(raw::FORMULA), ["A2*B2", "A3*B3", "A4*B4"]);
+    // 3 cells + 1 column-level rule, all the same relative form.
+    assert_eq!(texts(raw::FORMULA_R1C1), ["RC[-2]*RC[-1]"; 4]);
 
     let literals: Vec<_> = ds
         .iter()

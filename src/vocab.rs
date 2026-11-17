@@ -28,6 +28,7 @@ pub mod raw {
         GIT_REPOSITORY = "gitRepository", GIT_COMMIT = "gitCommit",
         GIT_PATH = "gitPath", GIT_BLOB = "gitBlob",
         GIT_MODIFIED = "gitModified",
+        FORMULA = "formula", FORMULA_R1C1 = "formulaR1C1",
     }
 }
 

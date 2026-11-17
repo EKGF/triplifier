@@ -51,3 +51,14 @@
     rdfs:range xsd:boolean ;
     rdfs:label "git modified" ;
     skos:definition "True when the captured bytes differ from the file at gitCommit, including when the file is untracked." .
+
+:formula a owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:domain :Value ;
+    rdfs:range xsd:string ;
+    rdfs:label "formula" ;
+    skos:definition "The spreadsheet formula that computed this value, verbatim in A1 notation without the leading '='. raw:literalValue holds the result the workbook cached, if any." .
+
+:formulaR1C1 a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "formula (R1C1)" ;
+    skos:definition "The formula in R1C1 notation relative to its cell. On a raw:Value: that cell's formula. On a raw:Column: the single relative formula shared by every formula cell in the column, i.e. a derivation rule for the column." .

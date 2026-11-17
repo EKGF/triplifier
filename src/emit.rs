@@ -214,6 +214,42 @@ impl ViewEmitter<'_> {
         self.columns = self.columns.max(number.0);
     }
 
+    /// Attach a cell's formula (verbatim and R1C1) to its value.
+    pub fn formula(
+        &mut self,
+        row: RowNumber,
+        column: ColumnNumber,
+        formula: &crate::formula::Formula,
+        r1c1: &crate::formula::R1C1,
+    ) {
+        let value = self.iris.value(row, column);
+        let out = &mut *self.out;
+        out.quad(
+            value.clone(),
+            raw::FORMULA,
+            Literal::new_simple_literal(formula.as_str()),
+        );
+        out.quad(
+            value,
+            raw::FORMULA_R1C1,
+            Literal::new_simple_literal(r1c1.as_str()),
+        );
+    }
+
+    /// Every formula in `column` has this one R1C1 form.
+    pub fn column_formula(
+        &mut self,
+        column: ColumnNumber,
+        r1c1: &crate::formula::R1C1,
+    ) {
+        let col = self.iris.column(column);
+        self.out.quad(
+            col,
+            raw::FORMULA_R1C1,
+            Literal::new_simple_literal(r1c1.as_str()),
+        );
+    }
+
     pub fn row(&mut self, number: RowNumber) {
         let row = self.iris.row(number);
         let out = &mut *self.out;
