@@ -1,7 +1,7 @@
 //! IRIs of every vocabulary term triplify emits.
 //!
 //! All `raw` terms are defined, with SHACL shapes, in
-//! `EKGF/ekg-ontologies/ekgf-raw.ttl`.
+//! <https://ekgf.github.io/ekg-ontologies/spec/main/ekg-raw/index.html>.
 
 macro_rules! terms {
     ($ns:literal; $($name:ident = $local:literal),* $(,)?) => {

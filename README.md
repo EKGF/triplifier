@@ -8,7 +8,7 @@ triplify ./dumps -o raw.nq.gz
 
 Triplify walks the given files and directories, honouring `.gitignore`, and
 captures every CSV, TSV and spreadsheet table it can read as RDF, following the
-[EKGF Raw Data Ontology](https://github.com/EKGF/ekg-ontologies/blob/main/ekgf-raw.ttl).
+[EKGF Raw Data Ontology](https://ekgf.github.io/ekg-ontologies/spec/main/ekg-raw/index.html).
 Each source gets its own named graph, with a DCAT distribution, an SPDX SHA-256
 checksum, its Git origin and a PROV activity for the run.
 
