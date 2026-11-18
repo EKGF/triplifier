@@ -2,6 +2,7 @@
 //! feeds cells into a [`TableBuilder`]; nothing is mapped or interpreted.
 
 mod csv;
+mod parquet;
 mod spreadsheet;
 
 use {
@@ -22,6 +23,9 @@ pub async fn read(
     match source.kind() {
         SourceKind::Csv => csv::read(source.path(), b',', emitter).await,
         SourceKind::Tsv => csv::read(source.path(), b'\t', emitter).await,
+        SourceKind::Parquet => {
+            parquet::read(source.path().to_owned(), emitter).await
+        },
         SourceKind::Xlsx | SourceKind::Xls | SourceKind::Ods => {
             spreadsheet::read(source.path().to_owned(), emitter).await
         },
@@ -120,6 +124,7 @@ impl<'v, 'e> TableBuilder<'v, 'e> {
 
     pub fn finish(mut self) {
         self.finish_header();
+        self.view.finish_profiles();
         for (column, forms) in std::mem::take(&mut self.column_formulas) {
             if let [single] = forms.into_iter().collect::<Vec<_>>().as_slice() {
                 self.view.column_formula(ColumnNumber(column), single);
@@ -136,6 +141,11 @@ impl CellValue {
             Self::Double(d) => d.to_string(),
             Self::Boolean(b) => b.to_string(),
             Self::DateTime(dt) => dt.to_string(),
+            Self::Date(d) => d.to_string(),
+            Self::DateTimeUtc(dt) => dt.to_rfc3339(),
+            Self::Decimal(s) => s.clone(),
+            Self::Time(t) => t.to_string(),
+            Self::Binary(b) => hex::encode_upper(b),
             Self::Null { source_text } => {
                 source_text.clone().unwrap_or_default()
             },

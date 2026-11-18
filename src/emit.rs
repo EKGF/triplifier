@@ -6,6 +6,7 @@
 use {
     crate::{
         iri::{ColumnNumber, RowNumber, SourceIris, ViewIris, ViewNumber},
+        profile::{ColumnProfile, ColumnProfiler},
         vocab::{raw, rdf, rdfs, xsd},
     },
     oxrdf::{
@@ -17,6 +18,7 @@ use {
         Quad,
         Term,
     },
+    std::collections::BTreeMap,
     tokio::sync::mpsc,
 };
 
@@ -41,6 +43,16 @@ pub enum CellValue {
     DateTime(chrono::NaiveDateTime),
     /// ISO 8601 duration lexical form.
     Duration(String),
+    /// A calendar date, as typed by the source (Parquet `DATE`).
+    Date(chrono::NaiveDate),
+    /// An instant, from a source type with a timezone (normalised to UTC).
+    DateTimeUtc(chrono::DateTime<chrono::Utc>),
+    /// An exact decimal in `xsd:decimal` lexical form.
+    Decimal(String),
+    /// A time of day without zone.
+    Time(chrono::NaiveTime),
+    /// Raw bytes, emitted as `xsd:hexBinary`.
+    Binary(Vec<u8>),
     /// The source explicitly reported "no value" (e.g. `#N/A`), with its text.
     Null {
         source_text: Option<String>,
@@ -48,7 +60,7 @@ pub enum CellValue {
 }
 
 impl CellValue {
-    fn literal(&self) -> Option<Literal> {
+    pub(crate) fn literal(&self) -> Option<Literal> {
         Some(match self {
             Self::Text(s) => Literal::new_simple_literal(s),
             Self::Integer(i) => Literal::from(*i),
@@ -61,6 +73,31 @@ impl CellValue {
                 )
             },
             Self::Duration(d) => Literal::new_typed_literal(d, xsd::DURATION),
+            Self::Date(d) => {
+                Literal::new_typed_literal(
+                    d.format("%Y-%m-%d").to_string(),
+                    xsd::DATE,
+                )
+            },
+            Self::DateTimeUtc(dt) => {
+                Literal::new_typed_literal(
+                    dt.format("%Y-%m-%dT%H:%M:%S%.fZ").to_string(),
+                    xsd::DATE_TIME,
+                )
+            },
+            Self::Decimal(s) => Literal::new_typed_literal(s, xsd::DECIMAL),
+            Self::Time(t) => {
+                Literal::new_typed_literal(
+                    t.format("%H:%M:%S%.f").to_string(),
+                    xsd::TIME,
+                )
+            },
+            Self::Binary(b) => {
+                Literal::new_typed_literal(
+                    hex::encode_upper(b),
+                    xsd::HEX_BINARY,
+                )
+            },
             Self::Null { .. } => return None,
         })
     }
@@ -140,13 +177,20 @@ impl GraphEmitter {
 /// Emits one source graph: the source, its views, columns, rows and values.
 #[derive(Debug)]
 pub struct SourceEmitter {
-    iris: SourceIris,
-    out:  GraphEmitter,
+    iris:    SourceIris,
+    out:     GraphEmitter,
+    profile: bool,
 }
 
 impl SourceEmitter {
     pub fn new(iris: SourceIris, out: GraphEmitter) -> Self {
-        Self { iris, out }
+        Self { iris, out, profile: false }
+    }
+
+    /// Profile every column (`--profile`).
+    pub fn with_profile(mut self, profile: bool) -> Self {
+        self.profile = profile;
+        self
     }
 
     pub fn iris(&self) -> &SourceIris { &self.iris }
@@ -180,16 +224,18 @@ impl SourceEmitter {
                 Literal::new_simple_literal(label),
             );
         }
-        ViewEmitter { iris, out, columns: 0 }
+        let profiles = self.profile.then(BTreeMap::new);
+        ViewEmitter { iris, out, columns: 0, profiles }
     }
 }
 
 /// Emits columns, rows and values of one view.
 #[derive(Debug)]
 pub struct ViewEmitter<'a> {
-    iris:    ViewIris,
-    out:     &'a mut GraphEmitter,
-    columns: u32,
+    iris:     ViewIris,
+    out:      &'a mut GraphEmitter,
+    columns:  u32,
+    profiles: Option<BTreeMap<u32, ColumnProfiler>>,
 }
 
 impl ViewEmitter<'_> {
@@ -250,6 +296,57 @@ impl ViewEmitter<'_> {
         );
     }
 
+    /// Emit the profile of every declared column (no-op without
+    /// `--profile`).
+    pub fn finish_profiles(&mut self) {
+        let Some(mut profiles) = self.profiles.take() else {
+            return
+        };
+        for c in 1..=self.columns {
+            let profile = profiles.remove(&c).unwrap_or_default().finish();
+            self.emit_profile(ColumnNumber(c), profile);
+        }
+    }
+
+    fn emit_profile(&mut self, column: ColumnNumber, p: ColumnProfile) {
+        let col = self.iris.column(column);
+        let out = &mut *self.out;
+        let int =
+            |n: u64| Literal::new_typed_literal(n.to_string(), xsd::INTEGER);
+        out.quad(col.clone(), raw::COUNT, int(p.count));
+        out.quad(col.clone(), raw::NULL_COUNT, int(p.null_count));
+        if let Some(n) = p.unique {
+            out.quad(col.clone(), raw::UNIQUE, int(n));
+        }
+        if let Some((top, freq)) = p.top {
+            out.quad(col.clone(), raw::TOP, top);
+            out.quad(col.clone(), raw::FREQ, int(freq));
+        }
+        if let Some((datatype, n)) = p.datatype {
+            out.quad(
+                col.clone(),
+                raw::INFERRED_DATATYPE,
+                datatype.into_owned(),
+            );
+            out.quad(col.clone(), raw::CONFORMING_COUNT, int(n));
+        }
+        if let Some((min, max)) = p.extremes {
+            out.quad(col.clone(), raw::MIN, min);
+            out.quad(col.clone(), raw::MAX, max);
+        }
+        if let Some(m) = p.mean {
+            out.quad(col.clone(), raw::MEAN, Literal::from(m));
+        }
+        if let Some(s) = p.std {
+            out.quad(col.clone(), raw::STD, Literal::from(s));
+        }
+        if let Some([p25, p50, p75]) = p.percentiles {
+            out.quad(col.clone(), raw::P25, Literal::from(p25));
+            out.quad(col.clone(), raw::P50, Literal::from(p50));
+            out.quad(col, raw::P75, Literal::from(p75));
+        }
+    }
+
     pub fn row(&mut self, number: RowNumber) {
         let row = self.iris.row(number);
         let out = &mut *self.out;
@@ -288,7 +385,14 @@ impl ViewEmitter<'_> {
             raw::FOR_COLUMN,
             self.iris.column(column),
         );
-        if let Some(lit) = cell.literal() {
+        let literal = cell.literal();
+        if let Some(profiles) = &mut self.profiles {
+            profiles
+                .entry(column.0)
+                .or_default()
+                .observe(cell, literal.as_ref());
+        }
+        if let Some(lit) = literal {
             out.quad(value.clone(), raw::LITERAL_VALUE, lit);
         }
         if let CellValue::Null { source_text: Some(t) } = cell {

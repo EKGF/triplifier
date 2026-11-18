@@ -4,7 +4,8 @@ use {
     triplify::{Triplify, writer::Output},
 };
 
-/// Turn every CSV/TSV/XLSX/XLS/ODS file under the given paths into raw RDF.
+/// Turn every CSV/TSV/XLSX/XLS/ODS/Parquet file under the given paths into raw
+/// RDF.
 #[derive(Debug, Parser)]
 #[command(version, about)]
 struct Cli {
@@ -22,6 +23,12 @@ struct Cli {
     /// memory).
     #[arg(long)]
     canonical: bool,
+
+    /// Profile every column: exact value/null/distinct counts, most
+    /// frequent value, an inferred datatype with its conforming count, and
+    /// min/max/mean/std/percentiles. Costs memory per column and time.
+    #[arg(long)]
+    profile: bool,
 
     #[command(flatten)]
     verbose: clap_verbosity_flag::Verbosity<clap_verbosity_flag::WarnLevel>,
@@ -49,7 +56,10 @@ async fn main() -> anyhow::Result<()> {
         Some(path) => Output::file(path, cli.canonical)?,
         None => Output::stdout(cli.canonical),
     };
-    let summary = Triplify::new(cli.paths, output).run().await?;
+    let summary = Triplify::new(cli.paths, output)
+        .with_profile(cli.profile)
+        .run()
+        .await?;
     tracing::info!(?summary, "done");
     anyhow::ensure!(
         summary.failed == 0,

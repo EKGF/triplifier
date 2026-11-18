@@ -22,11 +22,13 @@ pub enum SourceKind {
     Xlsx,
     Xls,
     Ods,
+    Parquet,
 }
 
 impl SourceKind {
-    pub const EXTENSIONS: &[&str] =
-        &["csv", "tsv", "tab", "xlsx", "xlsm", "xlsb", "xls", "ods"];
+    pub const EXTENSIONS: &[&str] = &[
+        "csv", "tsv", "tab", "xlsx", "xlsm", "xlsb", "xls", "ods", "parquet",
+    ];
 
     pub fn from_path(path: &Path) -> Option<Self> {
         let ext = path.extension()?.to_str()?.to_ascii_lowercase();
@@ -36,6 +38,7 @@ impl SourceKind {
             "xlsx" | "xlsm" | "xlsb" => Self::Xlsx,
             "xls" => Self::Xls,
             "ods" => Self::Ods,
+            "parquet" => Self::Parquet,
             _ => return None,
         })
     }
@@ -50,6 +53,7 @@ impl SourceKind {
             },
             Self::Xls => "application/vnd.ms-excel",
             Self::Ods => "application/vnd.oasis.opendocument.spreadsheet",
+            Self::Parquet => "application/vnd.apache.parquet",
         }
     }
 
@@ -58,6 +62,7 @@ impl SourceKind {
             Self::Csv => raw::CSV_FILE,
             Self::Tsv => raw::TSV_FILE,
             Self::Xlsx => raw::XLSX_FILE,
+            Self::Parquet => raw::PARQUET_FILE,
             Self::Xls | Self::Ods => raw::FILE,
         }
     }

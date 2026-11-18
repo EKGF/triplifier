@@ -1,6 +1,6 @@
 ---
 title: "Usage"
-description: "Command-line reference for triplify: input paths, output formats chosen by file name, gzip compression and RDFC-1.0 canonical output."
+description: "Command-line reference for triplify: input paths, output formats chosen by file name, gzip compression, RDFC-1.0 canonical output and column profiles."
 permalink: /usage/
 nav_order: 3
 grapharch:
@@ -16,7 +16,7 @@ One command, a list of paths and an optional output file.
 This is the output of `triplify --help`:
 
 ```text
-Triplify turns any tabular data dump (CSV, XLSX, ...) into raw RDF using the EKGF Raw Data Ontology, with DCAT, PROV and git provenance, without any mapping
+Triplify turns any tabular data dump (CSV, XLSX, Parquet, ...) into raw RDF using the EKGF Raw Data Ontology, with DCAT, PROV and git provenance, without any mapping
 
 Usage: triplify [OPTIONS] [PATHS]...
 
@@ -26,6 +26,7 @@ Arguments:
 Options:
   -o, --output <OUTPUT>  Output file: .nq, .nt (graphs merged) or .trig, optionally .gz. Defaults to N-Quads on stdout
       --canonical        Emit RDFC-1.0 canonical N-Quads/N-Triples (buffers the dataset in memory)
+      --profile          Profile every column: exact value/null/distinct counts, most frequent value, an inferred datatype with its conforming count, and min/max/mean/std/percentiles. Costs memory per column and time
   -v, --verbose...       Increase logging verbosity
   -q, --quiet...         Decrease logging verbosity
   -h, --help             Print help
@@ -48,9 +49,12 @@ Files are selected by extension, ignoring case:
 | `.xlsx`, `.xlsm`, `.xlsb` | Excel workbook |
 | `.xls` | Excel 97-2003 workbook |
 | `.ods` | OpenDocument spreadsheet |
+| `.parquet` | Apache Parquet |
 
 Other files are ignored, and so are Excel lock files such as `~$Book.xlsx`.
-XLSX worksheets are read cell by cell, as a stream.
+XLSX worksheets are read cell by cell, as a stream. Parquet files are read in
+batches of record rows, and every compression codec is supported (Snappy, Zstd,
+LZ4, Gzip, Brotli).
 
 ## Output
 
@@ -75,6 +79,19 @@ support TriG.
 
 ```sh
 triplify ./dumps --canonical -o raw.nq
+```
+
+## Column profiles
+
+`--profile` adds data-quality measures to every column: counts, the most
+frequent value, an inferred datatype with its evidence, and numeric statistics.
+They are computed in the same streaming pass, which is far cheaper than
+computing them in SPARQL afterwards. They do cost memory for each column, so
+they are opt-in. See [Output model](../output-model/#column-profiles) for the
+measures and the inference policy.
+
+```sh
+triplify ./dumps --profile -o raw.nq.gz
 ```
 
 ## Logging and exit status

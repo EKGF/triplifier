@@ -22,12 +22,17 @@ pub mod raw {
         FOR_COLUMN = "forColumn", LITERAL_VALUE = "literalValue",
         SOURCE_TEXT = "sourceText", COLUMN_NUMBER = "columnNumber",
         VIEW_ROW_NUMBER = "viewRowNumber", FILE_NAME = "fileName",
-        CSV_FILE = "CsvFile", TSV_FILE = "TsvFile",
+        CSV_FILE = "CsvFile", TSV_FILE = "TsvFile", PARQUET_FILE = "ParquetFile",
         VIEW_NUMBER = "viewNumber",
         GIT_REPOSITORY = "gitRepository", GIT_COMMIT = "gitCommit",
         GIT_PATH = "gitPath", GIT_BLOB = "gitBlob",
         GIT_MODIFIED = "gitModified",
         FORMULA = "formula", FORMULA_R1C1 = "formulaR1C1",
+        COUNT = "count", NULL_COUNT = "nullCount", UNIQUE = "unique",
+        TOP = "top", FREQ = "freq", INFERRED_DATATYPE = "inferredDatatype",
+        CONFORMING_COUNT = "conformingCount", MIN = "min", MAX = "max",
+        MEAN = "mean", STD = "std", P25 = "25pct", P50 = "50pct",
+        P75 = "75pct",
     }
 }
 
@@ -76,7 +81,7 @@ pub mod spdx {
 pub mod xsd {
     terms! { "http://www.w3.org/2001/XMLSchema#";
         STRING = "string", INTEGER = "integer", DOUBLE = "double",
-        BOOLEAN = "boolean", DATE_TIME = "dateTime", DURATION = "duration",
+        BOOLEAN = "boolean", DECIMAL = "decimal", DATE = "date", TIME = "time", DATE_TIME = "dateTime", DURATION = "duration",
         NON_NEGATIVE_INTEGER = "nonNegativeInteger",
         HEX_BINARY = "hexBinary",
     }

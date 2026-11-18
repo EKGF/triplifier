@@ -41,6 +41,18 @@ its header, and the rows after it are data.
   `"00123"`. Empty fields produce no value. Spreadsheet cells keep the type
   the workbook stored them with: string, integer, double, boolean, date-time or
   duration.
+- **Parquet keeps its schema.** A Parquet file is one `raw:ParquetFile` with one
+  view. Its columns are the schema's top-level fields, which also serve as the
+  header labels. The types map as follows:
+  - integers become `xsd:integer`, floats `xsd:double`, decimals `xsd:decimal`
+    (with their scale, e.g. `12.50`) and booleans `xsd:boolean`;
+  - `DATE` becomes `xsd:date`, and `TIME` becomes `xsd:time`;
+  - a timestamp with a timezone becomes a UTC `xsd:dateTime` (`…Z`), and one
+    without stays a zone-less `xsd:dateTime`;
+  - strings become `xsd:string`, and binary becomes `xsd:hexBinary`;
+  - a Parquet null is an explicit source null, so it becomes a `raw:NullValue`;
+  - nested lists, structs and maps are captured as their display text
+    (`[x, y]`) until the raw model supports nesting.
 - **Columns are physical.** Header text is only a label, and ragged rows just
   add columns.
 - **Duplicates once.** Identical files found twice are triplified once.
@@ -95,6 +107,44 @@ The run graph holds a `prov:Activity` with its start and end times, associated
 with a `prov:SoftwareAgent` for this triplify version. The activity
 `prov:used` every source. Each source graph is a `dcat:Dataset` that
 `prov:wasDerivedFrom` its source and `prov:wasGeneratedBy` the run.
+
+## Column profiles
+
+With `--profile`, every column also carries exact measures computed over its
+values. Header cells are not values.
+
+| Measure | Meaning |
+| --- | --- |
+| `raw:count`, `raw:nullCount` | non-null values and `raw:NullValue`s |
+| `raw:unique`, `raw:top`, `raw:freq` | distinct values, the most frequent one and how often it occurs |
+| `raw:inferredDatatype`, `raw:conformingCount` | a datatype and how many values conform to it |
+| `raw:min`, `raw:max` | extremes, typed in the inferred datatype |
+| `raw:mean`, `raw:std` | mean and sample standard deviation, numeric datatypes only |
+| `raw:25pct`, `raw:50pct`, `raw:75pct` | percentiles by linear interpolation (Hyndman and Fan type 7) |
+
+The inferred datatype describes the column. The values keep their source
+literals. A CSV column with 98 ISO dates and two `n/a` entries gets
+`raw:inferredDatatype xsd:date ; raw:conformingCount 98 ; raw:count 100`, and
+every value remains an `xsd:string`. A later step can cast with known
+confidence and look directly at the two exceptions.
+
+Inference policy:
+
+- Candidates are tried from most to least specific: `xsd:boolean`,
+  `xsd:integer`, `xsd:decimal`, `xsd:double`, `xsd:date`, `xsd:dateTime`.
+  The first one that at least 95% of the non-null values conform to is chosen.
+- Text conforms only by strict XSD lexical form, with these exceptions:
+  - integers with leading zeros (`00123`) are identifiers, not numbers;
+  - only `true` and `false` are booleans, so 0/1 columns stay integers;
+  - SQL-style `2026-11-17 18:46:00` timestamps are `xsd:dateTime`.
+- Spreadsheet cells conform by the type the workbook stored. A date-time at
+  midnight is also a date.
+
+Every measure is exact or omitted, never approximated. `raw:unique`, `raw:top`
+and `raw:freq` are omitted for a column with more than 100,000 distinct values.
+Percentiles are omitted for a column with more than 1,000,000 numbers. The
+measures and their SHACL shape (`raw:ColumnProfileShape`) are defined in the
+[EKGF Raw Data Ontology](https://ekgf.github.io/ekg-ontologies/spec/main/ekg-raw/index.html).
 
 ## Formulas
 
