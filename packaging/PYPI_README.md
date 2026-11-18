@@ -1,6 +1,6 @@
 # Triplify
 
-Turn every CSV, TSV, XLSX, XLS and ODS file under a directory into raw RDF,
+Turn every CSV, TSV, XLSX, XLS, ODS and Parquet file under a directory into raw RDF,
 using the EKGF Raw Data Ontology. Each source gets its own named graph, with
 DCAT, PROV, checksum and git provenance. There is no mapping step. The package
 installs the `triplify` command.

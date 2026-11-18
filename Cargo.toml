@@ -3,7 +3,7 @@ name = "triplify"
 version = "0.1.0"
 edition = "2024"
 rust-version = "1.92"
-description = "Triplify turns any tabular data dump (CSV, XLSX, ...) into raw RDF using the EKGF Raw Data Ontology, with DCAT, PROV and git provenance, without any mapping"
+description = "Triplify turns any tabular data dump (CSV, XLSX, Parquet, ...) into raw RDF using the EKGF Raw Data Ontology, with DCAT, PROV and git provenance, without any mapping"
 authors = ["Jacobus Geluk <jacobus.geluk@ekgf.org>"]
 license = "MIT"
 repository = "https://github.com/EKGF/triplify"
@@ -11,6 +11,9 @@ include = ["/src/**", "/Cargo.toml", "/Cargo.lock", "/LICENSE", "/README.md"]
 
 [dependencies]
 anyhow = "1"
+arrow-array = "60.1"
+arrow-cast = "60.1"
+arrow-schema = "60.1"
 async-compression = { version = "0.4.52", features = ["tokio", "gzip"] }
 calamine = { version = "0.38", features = ["dates"] }
 chrono = "0.4"
@@ -23,6 +26,7 @@ hex = "0.4"
 ignore = "0.4.34"
 oxrdf = { version = "0.3.5", features = ["rdfc-10"] }
 oxrdfio = { version = "0.2.7", features = ["async-tokio"] }
+parquet = { version = "60.1", default-features = false, features = ["arrow", "snap", "zstd", "lz4", "flate2", "flate2-rust_backend", "brotli"] }
 sha1 = "0.11"
 sha2 = "0.11"
 thiserror = "2"
@@ -34,6 +38,8 @@ url = "2.5"
 uuid = { version = "1.29.3", features = ["v7", "v8"] }
 
 [dev-dependencies]
+arrow-array = "60.1"
 flate2 = "1.1.11"
+parquet = { version = "60.1", default-features = false, features = ["arrow"] }
 rust_xlsxwriter = "0.102.0"
 tempfile = "3"

@@ -4,7 +4,7 @@ use {
     triplify::{Triplify, writer::Output},
 };
 
-/// Turn every CSV/TSV/XLSX/XLS/ODS file under the given paths into raw RDF.
+/// Turn every CSV/TSV/XLSX/XLS/ODS/Parquet file under the given paths into raw RDF.
 #[derive(Debug, Parser)]
 #[command(version, about)]
 struct Cli {

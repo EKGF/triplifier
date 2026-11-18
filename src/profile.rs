@@ -99,11 +99,30 @@ impl Reading {
                     r.date = Some(dt.date());
                 }
             },
+            CellValue::Decimal(s) => r.read_numeric_text(s),
+            CellValue::Date(d) => r.date = Some(*d),
+            CellValue::DateTimeUtc(dt) => r.date_time = Some(dt.naive_utc()),
             CellValue::Double(_) |
             CellValue::Duration(_) |
+            CellValue::Time(_) |
+            CellValue::Binary(_) |
             CellValue::Null { .. } => {},
         }
         r
+    }
+
+    /// Numeric conformance of a decimal lexical form.
+    fn read_numeric_text(&mut self, s: &str) {
+        if let Some(digits) = decimal_lexical(s) {
+            let f: f64 = s.parse().unwrap_or(f64::NAN);
+            if f.is_finite() {
+                if digits.integer_only {
+                    self.integer = s.parse::<i128>().ok();
+                }
+                self.decimal = Some((f, s.to_owned()));
+                self.double = Some(f);
+            }
+        }
     }
 
     fn read_text(&mut self, s: &str) {

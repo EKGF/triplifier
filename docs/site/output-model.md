@@ -41,6 +41,18 @@ its header, and the rows after it are data.
   `"00123"`. Empty fields produce no value. Spreadsheet cells keep the type
   the workbook stored them with: string, integer, double, boolean, date-time or
   duration.
+- **Parquet keeps its schema.** A Parquet file is one `raw:ParquetFile` with one
+  view. Its columns are the schema's top-level fields, which also serve as the
+  header labels. The types map as follows:
+  - integers become `xsd:integer`, floats `xsd:double`, decimals `xsd:decimal`
+    (with their scale, e.g. `12.50`) and booleans `xsd:boolean`;
+  - `DATE` becomes `xsd:date`, and `TIME` becomes `xsd:time`;
+  - a timestamp with a timezone becomes a UTC `xsd:dateTime` (`…Z`), and one
+    without stays a zone-less `xsd:dateTime`;
+  - strings become `xsd:string`, and binary becomes `xsd:hexBinary`;
+  - a Parquet null is an explicit source null, so it becomes a `raw:NullValue`;
+  - nested lists, structs and maps are captured as their display text
+    (`[x, y]`) until the raw model supports nesting.
 - **Columns are physical.** Header text is only a label, and ragged rows just
   add columns.
 - **Duplicates once.** Identical files found twice are triplified once.

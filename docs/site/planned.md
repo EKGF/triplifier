@@ -13,9 +13,6 @@ These are plans, not current features.
 
 ## Source formats
 
-- **Apache Parquet** (in progress). The format of most data lake and warehouse
-  exports. Values will keep their Parquet types: integers, decimals, dates,
-  timestamps and binary.
 - **PostgreSQL `pg_dump`.** Plain SQL dumps, with `COPY … FROM stdin` data and
   column types taken from `CREATE TABLE`. One file then captures a whole
   database.

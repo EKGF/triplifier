@@ -43,6 +43,16 @@ pub enum CellValue {
     DateTime(chrono::NaiveDateTime),
     /// ISO 8601 duration lexical form.
     Duration(String),
+    /// A calendar date, as typed by the source (Parquet `DATE`).
+    Date(chrono::NaiveDate),
+    /// An instant, from a source type with a timezone (normalised to UTC).
+    DateTimeUtc(chrono::DateTime<chrono::Utc>),
+    /// An exact decimal in `xsd:decimal` lexical form.
+    Decimal(String),
+    /// A time of day without zone.
+    Time(chrono::NaiveTime),
+    /// Raw bytes, emitted as `xsd:hexBinary`.
+    Binary(Vec<u8>),
     /// The source explicitly reported "no value" (e.g. `#N/A`), with its text.
     Null {
         source_text: Option<String>,
@@ -63,6 +73,31 @@ impl CellValue {
                 )
             },
             Self::Duration(d) => Literal::new_typed_literal(d, xsd::DURATION),
+            Self::Date(d) => {
+                Literal::new_typed_literal(
+                    d.format("%Y-%m-%d").to_string(),
+                    xsd::DATE,
+                )
+            },
+            Self::DateTimeUtc(dt) => {
+                Literal::new_typed_literal(
+                    dt.format("%Y-%m-%dT%H:%M:%S%.fZ").to_string(),
+                    xsd::DATE_TIME,
+                )
+            },
+            Self::Decimal(s) => Literal::new_typed_literal(s, xsd::DECIMAL),
+            Self::Time(t) => {
+                Literal::new_typed_literal(
+                    t.format("%H:%M:%S%.f").to_string(),
+                    xsd::TIME,
+                )
+            },
+            Self::Binary(b) => {
+                Literal::new_typed_literal(
+                    hex::encode_upper(b),
+                    xsd::HEX_BINARY,
+                )
+            },
             Self::Null { .. } => return None,
         })
     }

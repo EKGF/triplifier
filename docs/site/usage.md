@@ -16,7 +16,7 @@ One command, a list of paths and an optional output file.
 This is the output of `triplify --help`:
 
 ```text
-Triplify turns any tabular data dump (CSV, XLSX, ...) into raw RDF using the EKGF Raw Data Ontology, with DCAT, PROV and git provenance, without any mapping
+Triplify turns any tabular data dump (CSV, XLSX, Parquet, ...) into raw RDF using the EKGF Raw Data Ontology, with DCAT, PROV and git provenance, without any mapping
 
 Usage: triplify [OPTIONS] [PATHS]...
 
@@ -49,9 +49,12 @@ Files are selected by extension, ignoring case:
 | `.xlsx`, `.xlsm`, `.xlsb` | Excel workbook |
 | `.xls` | Excel 97-2003 workbook |
 | `.ods` | OpenDocument spreadsheet |
+| `.parquet` | Apache Parquet |
 
 Other files are ignored, and so are Excel lock files such as `~$Book.xlsx`.
-XLSX worksheets are read cell by cell, as a stream.
+XLSX worksheets are read cell by cell, as a stream. Parquet files are read in
+batches of record rows, and every compression codec is supported (Snappy, Zstd,
+LZ4, Gzip, Brotli).
 
 ## Output
 
