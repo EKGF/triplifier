@@ -12,6 +12,36 @@ grapharch:
 Triplify is open source under the MIT license. Issues and pull requests are
 welcome on [GitHub](https://github.com/EKGF/triplify).
 
+## Build from source
+
+The repository pins a nightly Rust toolchain in `rust-toolchain.toml`, which
+`rustup` selects automatically. Install the latest `main` with:
+
+```sh
+cargo install --locked --git https://github.com/EKGF/triplify
+```
+
+Or build a checkout:
+
+```sh
+git clone https://github.com/EKGF/triplify
+cd triplify
+cargo build --release --locked
+./target/release/triplify --version
+```
+
+### Build a Python wheel
+
+Triplify can also be packaged as a [maturin](https://www.maturin.rs/) `bin`
+wheel. The wheel contains the native executable, so it needs no Python
+dependencies and downloads nothing at runtime. Build one from a checkout and
+install it into an isolated tool environment:
+
+```sh
+uvx maturin build --release --locked --out dist
+uv tool install dist/triplify-*.whl
+```
+
 ## Principle
 
 Capture, never map. Readers report physical structure (views, columns, rows,
