@@ -10,7 +10,7 @@ grapharch:
 # Output model
 
 The output follows the
-[EKGF Raw Data Ontology](https://github.com/EKGF/ekg-ontologies/blob/main/ekgf-raw.ttl)
+[EKGF Raw Data Ontology](https://ekgf.github.io/ekg-ontologies/spec/main/ekg-raw/index.html)
 and conforms to its SHACL shapes.
 
 ## Named graphs
